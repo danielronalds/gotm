@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"errors"
@@ -7,13 +7,13 @@ import (
 )
 
 // Service for handling filesystem operations
-type FilesystemService struct{}
+type FilesystemRepository struct{}
 
-func NewFilesystemService() FilesystemService {
-	return FilesystemService{}
+func NewFilesystemRepository() FilesystemRepository {
+	return FilesystemRepository{}
 }
 
-func (s FilesystemService) HasDirectory(directory string) (bool, error) {
+func (s FilesystemRepository) HasDirectory(directory string) (bool, error) {
 	_, err := os.Stat(directory)
 
 	if err == nil { // No error means the file/directory exists
@@ -28,7 +28,7 @@ func (s FilesystemService) HasDirectory(directory string) (bool, error) {
 
 }
 
-func (s FilesystemService) CreateDirectory(directory string) error {
+func (s FilesystemRepository) CreateDirectory(directory string) error {
 	if hasDir, err := s.HasDirectory(directory); err != nil || hasDir {
 		return errors.New("file with that name already exists")
 	}

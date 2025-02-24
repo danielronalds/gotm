@@ -5,22 +5,16 @@ import (
 	"fmt"
 )
 
-type ProjectCreater interface {
-	CreateProject(directoryName string) error
-}
-
-type FilesystemReaderWriter interface {
-	HasDirectory(directory string) (bool, error)
-	CreateDirectory(directory string) error
+type ProjectInitialiser interface {
+	InitProject(directoryName *string) error
 }
 
 type NewController struct {
-	creater    ProjectCreater
-	filesystem FilesystemReaderWriter
+	initialiser ProjectInitialiser
 }
 
-func NewNewController(filesystem FilesystemReaderWriter, creater ProjectCreater) NewController {
-	return NewController{creater, filesystem}
+func NewNewController(initialiser ProjectInitialiser) NewController {
+	return NewController{initialiser}
 }
 
 func (c NewController) HandleCmd(args []string) error {
@@ -34,13 +28,7 @@ func (c NewController) HandleCmd(args []string) error {
 
 	projectName := args[1]
 
-	if hasDir, err := c.filesystem.HasDirectory(projectName); err != nil || hasDir {
-		return fmt.Errorf("%v already exists in this directory", projectName)
-	}
-
-	c.filesystem.CreateDirectory(projectName)
-
-	c.creater.CreateProject(projectName)
+	c.initialiser.InitProject(&projectName)
 
 	fmt.Printf("Created \"%v\" project", projectName)
 

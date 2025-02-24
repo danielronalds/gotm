@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	c "github.com/danielronalds/gotm/controllers"
+	r "github.com/danielronalds/gotm/repositories"
 	s "github.com/danielronalds/gotm/services"
 )
 
@@ -14,8 +15,10 @@ type Controller interface {
 }
 
 func main() {
-	filesystemService := s.NewFilesystemService()
-	initService := s.NewInitialiserService()
+	filesystem := r.NewFilesystemRepository()
+	r.NewTemplatesRepository()
+
+	initService := s.NewInitialiserService(filesystem)
 
 	args := os.Args[1:] // Removing program name
 
@@ -28,7 +31,7 @@ func main() {
 
 	switch command {
 	case "new":
-		controller = c.NewNewController(filesystemService, initService)
+		controller = c.NewNewController(initService)
 	default:
 		controller = c.NewHelpController()
 	}

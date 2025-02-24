@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"os"
@@ -19,7 +19,7 @@ func TestHasDirectoryReturnsTrueIfDirectoryExists(t *testing.T) {
 	if err := os.Mkdir(TEST_DIR, 0755); err != nil {
 		t.Fatalf("Failed to create test directory: %v", err.Error())
 	}
-	service := NewFilesystemService()
+	service := NewFilesystemRepository()
 
 	// Act
 	hasDir, err := service.HasDirectory(TEST_DIR)
@@ -36,7 +36,7 @@ func TestHasDirectoryReturnsTrueIfDirectoryExists(t *testing.T) {
 
 func TestHasDirectoryReturnsFalseIfDirectoryDoesntExists(t *testing.T) {
 	// Arrange
-	service := NewFilesystemService()
+	service := NewFilesystemRepository()
 
 	// Act
 	hasDir, err := service.HasDirectory("non-existent")
@@ -52,7 +52,7 @@ func TestHasDirectoryReturnsFalseIfDirectoryDoesntExists(t *testing.T) {
 
 func TestCreateDirectoryWorks(t *testing.T) {
 	// Arrange
-	service := NewFilesystemService()
+	service := NewFilesystemRepository()
 
 	// Act
 	if err := service.CreateDirectory(TEST_DIR); err != nil {
@@ -68,7 +68,7 @@ func TestCreateDirectoryWorks(t *testing.T) {
 
 func TestCreateDirectoryReturnsExpectedErrorIfFileExists(t *testing.T) {
 	// Arrange
-	service := NewFilesystemService()
+	service := NewFilesystemRepository()
 
 	// Act
 	if err := service.CreateDirectory(TEST_DIR); err != nil {
