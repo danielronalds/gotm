@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Service for handling filesystem operations
+// Repository for handling filesystem operations
 type FilesystemRepository struct{}
 
 func NewFilesystemRepository() FilesystemRepository {

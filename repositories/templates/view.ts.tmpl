@@ -1,0 +1,13 @@
+import m from "mithril";
+
+interface Attrs {}
+
+const {{ .Name }}: m.Component<Attrs> = {
+  view: (vn) => {
+    return m("div", {}, [
+      m("p", {}, "Hello, world!")
+    ]);
+  },
+};
+
+export default {{ .Name }};

@@ -5,8 +5,13 @@ import (
 	"strings"
 )
 
-const CONTROLLER_DIR string = "controllers"
+const CONTROLLERS_DIR string = "controllers"
 const SERVICES_DIR string = "services"
+const REPOSITORIES_DIR string = "repositories"
+const MODELS_DIR string = "frontend/src/models"
+const VIEWS_DIR string = "frontend/src/views"
+
+const VIEW_COMPONENT_TYPE = "view"
 
 type ComponentConfig struct {
 	Name string
@@ -22,29 +27,29 @@ func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesW
 }
 
 func (s ComponentService) GenerateController(name string) error {
-	return s.generateComponent(name, "controller", CONTROLLER_DIR, ".go", "controller.go.tmpl")
+	return s.generateComponent(name, toSentenceCase(name), "controller", CONTROLLERS_DIR, ".go", "controller.go.tmpl")
 }
 
 func (s ComponentService) GenerateService(name string) error {
-	return s.generateComponent(name, "service", SERVICES_DIR, ".go", "service.go.tmpl")
+	return s.generateComponent(name, toSentenceCase(name), "service", SERVICES_DIR, ".go", "service.go.tmpl")
 }
 
 func (s ComponentService) GenerateRepository(name string) error {
-	return nil
+	return s.generateComponent(name, toSentenceCase(name), "repository", REPOSITORIES_DIR, ".go", "repository.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
-	return nil
+	return s.generateComponent(name, toSentenceCase(name), "model", MODELS_DIR, ".ts", "model.ts.tmpl")
 }
 
 func (s ComponentService) GenerateView(name string) error {
-	return nil
+	return s.generateComponent(name, name, VIEW_COMPONENT_TYPE, VIEWS_DIR, ".ts", "view.ts.tmpl")
 }
 
 // general method for dealing with the logic of generating a component.
 //
 // `fileExtension` should include the dot, i.e. ".go"
-func (s ComponentService) generateComponent(name, componentType, componentDir, fileExtension, templateName string) error {
+func (s ComponentService) generateComponent(name, componentName, componentType, componentDir, fileExtension, templateName string) error {
 	hasDir, err := s.filesystem.HasDirectoryOrFile(componentDir)
 	if err != nil {
 		return fmt.Errorf("unable to check if %v directory exists: %v", componentDir, err.Error())
@@ -56,7 +61,11 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 		}
 	}
 
-	componentFilepath := fmt.Sprintf("%v/%v%v", componentDir, strings.ToLower(name), fileExtension)
+	filename := strings.ToLower(name)
+	if componentType == VIEW_COMPONENT_TYPE {
+		filename = name // Views have capatilised names, rather than enforced lowercase
+	}
+	componentFilepath := fmt.Sprintf("%v/%v%v", componentDir, filename, fileExtension)
 
 	hasFile, err := s.filesystem.HasDirectoryOrFile(componentFilepath)
 	if err != nil {
@@ -72,9 +81,7 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 	}
 	defer file.Close()
 
-	controllerName := toSentenceCase(name)
-
-	if err := s.templates.ExecuteTemplate(file, templateName, ComponentConfig{Name: controllerName}); err != nil {
+	if err := s.templates.ExecuteTemplate(file, templateName, ComponentConfig{Name: componentName}); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
 
