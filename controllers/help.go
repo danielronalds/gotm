@@ -21,6 +21,7 @@ func (c HelpController) HandleCmd(args []string) error {
 A cli tool building opinionated full stack web applications with the GOTM stack
 
 Commands
+  new         Creates a new project with the passed in name
   help        Show this menu
 `
 

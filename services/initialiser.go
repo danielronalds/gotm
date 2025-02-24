@@ -17,6 +17,11 @@ type TemplatesWriter interface {
 	ExecuteTemplate(wr io.Writer, name string, data any) error
 }
 
+type InitialiserServiceConfig struct {
+	ProjectName    string
+	GithubUsername string
+}
+
 // Service for hanlding initialising new projects
 type InitialiserService struct {
 	filesystem FilesystemReaderWriter
@@ -27,7 +32,7 @@ func NewInitialiserService(filesystem FilesystemReaderWriter, templates Template
 	return InitialiserService{filesystem, templates}
 }
 
-func (s InitialiserService) InitProject(projectName string) error {
+func (s InitialiserService) InitProject(username string, projectName string) error {
 	if hasDir, err := s.filesystem.HasDirectory(projectName); err != nil || hasDir {
 		return fmt.Errorf("%v already exists in this directory", projectName)
 	}
@@ -74,6 +79,11 @@ func (s InitialiserService) InitProject(projectName string) error {
 		"frontend/src/views/pages/HomePage.ts",
 	}
 
+	config := InitialiserServiceConfig{
+		ProjectName:    projectName,
+		GithubUsername: username,
+	}
+
 	for _, filepath := range files {
 		filepathWithProject := fmt.Sprintf("%v/%v", projectName, filepath)
 		file, err := s.filesystem.CreateFile(filepathWithProject)
@@ -86,7 +96,7 @@ func (s InitialiserService) InitProject(projectName string) error {
 		filename := parts[len(parts)-1] // Last part will be the file
 		template := fmt.Sprintf("%v.tmpl", filename)
 
-		s.templates.ExecuteTemplate(file, template, nil)
+		s.templates.ExecuteTemplate(file, template, config)
 	}
 
 	return nil

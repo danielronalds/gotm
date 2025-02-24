@@ -3,10 +3,11 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type ProjectInitialiser interface {
-	InitProject(directoryName string) error
+	InitProject(username string, directoryName string) error
 }
 
 type NewController struct {
@@ -26,9 +27,9 @@ func (c NewController) HandleCmd(args []string) error {
 		return errors.New("expected argument [project-name]")
 	}
 
-	projectName := args[1]
+	projectName := strings.TrimSuffix(args[1], "/") // Ensuring no path is accidentally included
 
-	c.initialiser.InitProject(projectName)
+	c.initialiser.InitProject("danielronalds", projectName) // TODO: make user configurable username
 
 	fmt.Printf("Created \"%v\" project", projectName)
 
