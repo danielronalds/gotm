@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -23,77 +22,11 @@ func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesW
 }
 
 func (s ComponentService) GenerateController(name string) error {
-	hasDir, err := s.filesystem.HasDirectoryOrFile(CONTROLLER_DIR)
-	if err != nil {
-		return fmt.Errorf("unable to check if controller directory exists: %v", err.Error())
-	}
-
-	if !hasDir {
-		if err := s.filesystem.CreateDirectory(CONTROLLER_DIR); err != nil {
-			return fmt.Errorf("unable to create controller directory: %v", err.Error())
-		}
-	}
-
-	controllerFilepath := fmt.Sprintf("%v/%v.go", CONTROLLER_DIR, strings.ToLower(name))
-
-	hasFile, err := s.filesystem.HasDirectoryOrFile(controllerFilepath)
-	if err != nil {
-		return fmt.Errorf("unable to check if controller with that name already exists: %v", err.Error())
-	}
-	if hasFile {
-		return errors.New("controller with that name already exists")
-	}
-
-	file, err := s.filesystem.CreateFile(controllerFilepath)
-	if err != nil {
-		return fmt.Errorf("unable to create controller file: %v", err.Error())
-	}
-	defer file.Close()
-
-	controllerName := toSentenceCase(name)
-
-	if err := s.templates.ExecuteTemplate(file, "controller.go.tmpl", ComponentConfig{Name: controllerName}); err != nil {
-		return fmt.Errorf("unable to write template: %v", err.Error())
-	}
-
-	return nil
+	return s.generateComponent(name, "controller", CONTROLLER_DIR, ".go", "controller.go.tmpl")
 }
 
 func (s ComponentService) GenerateService(name string) error {
-	hasDir, err := s.filesystem.HasDirectoryOrFile(SERVICES_DIR)
-	if err != nil {
-		return fmt.Errorf("unable to check if services directory exists: %v", err.Error())
-	}
-
-	if !hasDir {
-		if err := s.filesystem.CreateDirectory(SERVICES_DIR); err != nil {
-			return fmt.Errorf("unable to create services directory: %v", err.Error())
-		}
-	}
-
-	servicesFilepath := fmt.Sprintf("%v/%v.go", SERVICES_DIR, strings.ToLower(name))
-
-	hasFile, err := s.filesystem.HasDirectoryOrFile(servicesFilepath)
-	if err != nil {
-		return fmt.Errorf("unable to check if service with that name already exists: %v", err.Error())
-	}
-	if hasFile {
-		return errors.New("service with that name already exists")
-	}
-
-	file, err := s.filesystem.CreateFile(servicesFilepath)
-	if err != nil {
-		return fmt.Errorf("unable to create service file: %v", err.Error())
-	}
-	defer file.Close()
-
-	serviceName := toSentenceCase(name)
-
-	if err := s.templates.ExecuteTemplate(file, "service.go.tmpl", ComponentConfig{Name: serviceName}); err != nil {
-		return fmt.Errorf("unable to write template: %v", err.Error())
-	}
-
-	return nil
+	return s.generateComponent(name, "service", SERVICES_DIR, ".go", "service.go.tmpl")
 }
 
 func (s ComponentService) GenerateRepository(name string) error {
@@ -105,6 +38,46 @@ func (s ComponentService) GenerateModel(name string) error {
 }
 
 func (s ComponentService) GenerateView(name string) error {
+	return nil
+}
+
+// general method for dealing with the logic of generating a component.
+//
+// `fileExtension` should include the dot, i.e. ".go"
+func (s ComponentService) generateComponent(name, componentType, componentDir, fileExtension, templateName string) error {
+	hasDir, err := s.filesystem.HasDirectoryOrFile(componentDir)
+	if err != nil {
+		return fmt.Errorf("unable to check if %v directory exists: %v", componentDir, err.Error())
+	}
+
+	if !hasDir {
+		if err := s.filesystem.CreateDirectory(componentDir); err != nil {
+			return fmt.Errorf("unable to create %v directory: %v", componentDir, err.Error())
+		}
+	}
+
+	componentFilepath := fmt.Sprintf("%v/%v%v", componentDir, strings.ToLower(name), fileExtension)
+
+	hasFile, err := s.filesystem.HasDirectoryOrFile(componentFilepath)
+	if err != nil {
+		return fmt.Errorf("unable to check if %v with that name already exists: %v", componentType, err.Error())
+	}
+	if hasFile {
+		return fmt.Errorf("%v with that name already exists", componentType)
+	}
+
+	file, err := s.filesystem.CreateFile(componentFilepath)
+	if err != nil {
+		return fmt.Errorf("unable to create %v file: %v", componentType, err.Error())
+	}
+	defer file.Close()
+
+	controllerName := toSentenceCase(name)
+
+	if err := s.templates.ExecuteTemplate(file, templateName, ComponentConfig{Name: controllerName}); err != nil {
+		return fmt.Errorf("unable to write template: %v", err.Error())
+	}
+
 	return nil
 }
 
