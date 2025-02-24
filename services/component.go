@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+const CONTROLLER_DIR string = "controllers"
 const SERVICES_DIR string = "services"
 
 type ComponentConfig struct {
@@ -22,6 +23,39 @@ func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesW
 }
 
 func (s ComponentService) GenerateController(name string) error {
+	hasDir, err := s.filesystem.HasDirectoryOrFile(CONTROLLER_DIR)
+	if err != nil {
+		return fmt.Errorf("unable to check if controller directory exists: %v", err.Error())
+	}
+
+	if !hasDir {
+		if err := s.filesystem.CreateDirectory(CONTROLLER_DIR); err != nil {
+			return fmt.Errorf("unable to create controller directory: %v", err.Error())
+		}
+	}
+
+	controllerFilepath := fmt.Sprintf("%v/%v.go", CONTROLLER_DIR, strings.ToLower(name))
+
+	hasFile, err := s.filesystem.HasDirectoryOrFile(controllerFilepath)
+	if err != nil {
+		return fmt.Errorf("unable to check if controller with that name already exists: %v", err.Error())
+	}
+	if hasFile {
+		return errors.New("controller with that name already exists")
+	}
+
+	file, err := s.filesystem.CreateFile(controllerFilepath)
+	if err != nil {
+		return fmt.Errorf("unable to create controller file: %v", err.Error())
+	}
+	defer file.Close()
+
+	controllerName := toSentenceCase(name)
+
+	if err := s.templates.ExecuteTemplate(file, "controller.go.tmpl", ComponentConfig{Name: controllerName}); err != nil {
+		return fmt.Errorf("unable to write template: %v", err.Error())
+	}
+
 	return nil
 }
 

@@ -22,7 +22,7 @@ type AddController struct {
 
 func NewAddController(generator ComponentGenerator) AddController {
 	generatorMap := map[string]Generator{
-		"controllor": generator.GenerateController,
+		"controller": generator.GenerateController,
 		"service":    generator.GenerateService,
 		"repository": generator.GenerateRepository,
 		"model":      generator.GenerateModel,

@@ -1,0 +1,32 @@
+package controllers
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type {{ .Name }}Controller struct {
+	mux *http.ServeMux
+}
+
+func New{{ .Name }}Controller(mux *http.ServeMux) {{ .Name }}Controller {
+	return {{ .Name }}Controller{mux}
+}
+
+func (c {{ .Name }}Controller) Init() {
+	c.mux.HandleFunc("GET /{{ .Name }}/hello", c.HandleGetHello)
+}
+
+type GetHelloResponse struct {
+	Message string `json:"message"`
+}
+
+func (c {{ .Name }}Controller) HandleGetHello(w http.ResponseWriter, r *http.Request) {
+	response := GetHelloResponse{Message: "Hello from the server!"}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, fmt.Sprintf("Unable to encode JSON: %v", err), http.StatusInternalServerError)
+	}
+}
