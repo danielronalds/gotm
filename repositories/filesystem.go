@@ -13,7 +13,7 @@ func NewFilesystemRepository() FilesystemRepository {
 	return FilesystemRepository{}
 }
 
-func (r FilesystemRepository) HasDirectory(directory string) (bool, error) {
+func (r FilesystemRepository) HasDirectoryOrFile(directory string) (bool, error) {
 	_, err := os.Stat(directory)
 
 	if err == nil { // No error means the file/directory exists
@@ -29,7 +29,7 @@ func (r FilesystemRepository) HasDirectory(directory string) (bool, error) {
 }
 
 func (r FilesystemRepository) CreateDirectory(directory string) error {
-	if hasDir, err := r.HasDirectory(directory); err != nil || hasDir {
+	if hasDir, err := r.HasDirectoryOrFile(directory); err != nil || hasDir {
 		return errors.New("file with that name already exists")
 	}
 

@@ -15,6 +15,8 @@ type TemplatesRepository struct {
 
 func NewTemplatesRepository() TemplatesRepository {
 	templates, err := template.New("").ParseFS(templateFS,
+		"templates/*.tmpl",
+		// Initial project stuff
 		"templates/init/*.tmpl",
 		"templates/init/controllers/*.tmpl",
 		"templates/init/**/*.tmpl",

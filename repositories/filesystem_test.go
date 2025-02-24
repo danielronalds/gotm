@@ -15,7 +15,7 @@ func removeFile(dir string, t *testing.T) {
 	}
 }
 
-func TestHasDirectoryReturnsTrueIfDirectoryExists(t *testing.T) {
+func TestHasDirectoryOrFileReturnsTrueIfDirectoryExists(t *testing.T) {
 	// Arrange
 	if err := os.Mkdir(TEST_DIR, 0755); err != nil {
 		t.Fatalf("Failed to create test directory: %v", err.Error())
@@ -23,7 +23,7 @@ func TestHasDirectoryReturnsTrueIfDirectoryExists(t *testing.T) {
 	service := NewFilesystemRepository()
 
 	// Act
-	hasDir, err := service.HasDirectory(TEST_DIR)
+	hasDir, err := service.HasDirectoryOrFile(TEST_DIR)
 	if err != nil {
 		t.Fatalf("Error occured: %v", err.Error())
 	}
@@ -35,12 +35,12 @@ func TestHasDirectoryReturnsTrueIfDirectoryExists(t *testing.T) {
 	}
 }
 
-func TestHasDirectoryReturnsFalseIfDirectoryDoesntExists(t *testing.T) {
+func TestHasDirectoryOrFileReturnsFalseIfDirectoryDoesntExists(t *testing.T) {
 	// Arrange
 	service := NewFilesystemRepository()
 
 	// Act
-	hasDir, err := service.HasDirectory("non-existent")
+	hasDir, err := service.HasDirectoryOrFile("non-existent")
 	if err != nil {
 		t.Fatalf("Error occured: %v", err.Error())
 	}
@@ -61,7 +61,7 @@ func TestCreateDirectoryWorks(t *testing.T) {
 	}
 
 	// Assert
-	if hasDir, err := service.HasDirectory(TEST_DIR); err != nil || !hasDir {
+	if hasDir, err := service.HasDirectoryOrFile(TEST_DIR); err != nil || !hasDir {
 		t.Fatalf("Failed to create directory")
 	}
 	removeFile(TEST_DIR, t)
@@ -81,7 +81,7 @@ func TestCreateDirWorksWithNestedDirectories(t *testing.T) {
 	}
 
 	// Assert
-	if hasDir, err := service.HasDirectory(TEST_DIR); err != nil || !hasDir {
+	if hasDir, err := service.HasDirectoryOrFile(TEST_DIR); err != nil || !hasDir {
 		t.Fatalf("Failed to create directory")
 	}
 	removeFile(SECOND_DIR, t)

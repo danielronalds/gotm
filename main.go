@@ -19,6 +19,7 @@ func main() {
 	templates := r.NewTemplatesRepository()
 
 	initService := s.NewInitialiserService(filesystem, templates)
+	componentService := s.NewComponentService(filesystem, templates)
 
 	args := os.Args[1:] // Removing program name
 
@@ -32,6 +33,8 @@ func main() {
 	switch command {
 	case "new":
 		controller = c.NewNewController(initService)
+	case "add":
+		controller = c.NewAddController(componentService)
 	default:
 		controller = c.NewHelpController()
 	}

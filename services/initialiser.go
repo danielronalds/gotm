@@ -2,20 +2,8 @@ package services
 
 import (
 	"fmt"
-	"io"
-	"os"
 	"strings"
 )
-
-type FilesystemReaderWriter interface {
-	HasDirectory(directory string) (bool, error)
-	CreateDirectory(directory string) error
-	CreateFile(filename string) (*os.File, error)
-}
-
-type TemplatesWriter interface {
-	ExecuteTemplate(wr io.Writer, name string, data any) error
-}
 
 type InitialiserServiceConfig struct {
 	ProjectName    string
@@ -33,7 +21,7 @@ func NewInitialiserService(filesystem FilesystemReaderWriter, templates Template
 }
 
 func (s InitialiserService) InitProject(username string, projectName string) error {
-	if hasDir, err := s.filesystem.HasDirectory(projectName); err != nil || hasDir {
+	if hasDir, err := s.filesystem.HasDirectoryOrFile(projectName); err != nil || hasDir {
 		return fmt.Errorf("%v already exists in this directory", projectName)
 	}
 
@@ -96,7 +84,9 @@ func (s InitialiserService) InitProject(username string, projectName string) err
 		filename := parts[len(parts)-1] // Last part will be the file
 		template := fmt.Sprintf("%v.tmpl", filename)
 
-		s.templates.ExecuteTemplate(file, template, config)
+		if err := s.templates.ExecuteTemplate(file, template, config); err != nil {
+			return fmt.Errorf("unable to write template: %v", err.Error())
+		}
 	}
 
 	return nil
