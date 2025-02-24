@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -63,6 +64,27 @@ func TestCreateDirectoryWorks(t *testing.T) {
 	if hasDir, err := service.HasDirectory(TEST_DIR); err != nil || !hasDir {
 		t.Fatalf("Failed to create directory")
 	}
+	removeFile(TEST_DIR, t)
+}
+
+func TestCreateDirWorksWithNestedDirectories(t *testing.T) {
+	// Arrange
+	SECOND_DIR := fmt.Sprintf("%v/test", TEST_DIR)
+	service := NewFilesystemRepository()
+
+	// Act
+	if err := service.CreateDirectory(TEST_DIR); err != nil {
+		t.Fatalf("Failed to create directory: %v", err.Error())
+	}
+	if err := service.CreateDirectory(SECOND_DIR); err != nil {
+		t.Fatalf("Failed to create directory: %v", err.Error())
+	}
+
+	// Assert
+	if hasDir, err := service.HasDirectory(TEST_DIR); err != nil || !hasDir {
+		t.Fatalf("Failed to create directory")
+	}
+	removeFile(SECOND_DIR, t)
 	removeFile(TEST_DIR, t)
 }
 

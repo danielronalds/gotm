@@ -16,9 +16,9 @@ type Controller interface {
 
 func main() {
 	filesystem := r.NewFilesystemRepository()
-	r.NewTemplatesRepository()
+	templates := r.NewTemplatesRepository()
 
-	initService := s.NewInitialiserService(filesystem)
+	initService := s.NewInitialiserService(filesystem, templates)
 
 	args := os.Args[1:] // Removing program name
 

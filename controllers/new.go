@@ -6,7 +6,7 @@ import (
 )
 
 type ProjectInitialiser interface {
-	InitProject(directoryName *string) error
+	InitProject(directoryName string) error
 }
 
 type NewController struct {
@@ -28,7 +28,7 @@ func (c NewController) HandleCmd(args []string) error {
 
 	projectName := args[1]
 
-	c.initialiser.InitProject(&projectName)
+	c.initialiser.InitProject(projectName)
 
 	fmt.Printf("Created \"%v\" project", projectName)
 

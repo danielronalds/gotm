@@ -18,7 +18,7 @@ func (c HelpController) HandleCmd(args []string) error {
 
 	help := `gotm v0.0.1
 
-A cli tool for scaffolding for building opinioated full stack web applications with the GOTM stack
+A cli tool building opinionated full stack web applications with the GOTM stack
 
 Commands
   help        Show this menu

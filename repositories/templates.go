@@ -2,25 +2,9 @@ package repositories
 
 import (
 	"embed"
-	"io/fs"
+	"io"
 	"text/template"
 )
-
-func getAllFilenames(efs embed.FS, pathFiles string) ([]string, error) {
-	files, err := fs.ReadDir(efs, pathFiles)
-	if err != nil {
-		return nil, err
-	}
-
-	// only file name
-	// 1131 0001-01-01 00:00:00 foo.gohtml -> foo.gohtml
-	arr := make([]string, 0, len(files))
-	for _, file := range files {
-		arr = append(arr, file.Name())
-	}
-
-	return arr, nil
-}
 
 //go:embed templates/*
 var templateFS embed.FS
@@ -44,4 +28,8 @@ func NewTemplatesRepository() TemplatesRepository {
 	}
 
 	return TemplatesRepository{templates}
+}
+
+func (r TemplatesRepository) ExecuteTemplate(wr io.Writer, name string, data any) error {
+	return r.templates.ExecuteTemplate(wr, name, data)
 }
