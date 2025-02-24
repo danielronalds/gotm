@@ -27,29 +27,29 @@ func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesW
 }
 
 func (s ComponentService) GenerateController(name string) error {
-	return s.generateComponent(name, toSentenceCase(name), "controller", CONTROLLERS_DIR, ".go", "controller.go.tmpl")
+	return s.generateComponent(name, "controller", CONTROLLERS_DIR, ".go", "controller.go.tmpl")
 }
 
 func (s ComponentService) GenerateService(name string) error {
-	return s.generateComponent(name, toSentenceCase(name), "service", SERVICES_DIR, ".go", "service.go.tmpl")
+	return s.generateComponent(name, "service", SERVICES_DIR, ".go", "service.go.tmpl")
 }
 
 func (s ComponentService) GenerateRepository(name string) error {
-	return s.generateComponent(name, toSentenceCase(name), "repository", REPOSITORIES_DIR, ".go", "repository.go.tmpl")
+	return s.generateComponent(name, "repository", REPOSITORIES_DIR, ".go", "repository.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
-	return s.generateComponent(name, toSentenceCase(name), "model", MODELS_DIR, ".ts", "model.ts.tmpl")
+	return s.generateComponent(name, "model", MODELS_DIR, ".ts", "model.ts.tmpl")
 }
 
 func (s ComponentService) GenerateView(name string) error {
-	return s.generateComponent(name, name, VIEW_COMPONENT_TYPE, VIEWS_DIR, ".ts", "view.ts.tmpl")
+	return s.generateComponent(name, VIEW_COMPONENT_TYPE, VIEWS_DIR, ".ts", "view.ts.tmpl")
 }
 
 // general method for dealing with the logic of generating a component.
 //
 // `fileExtension` should include the dot, i.e. ".go"
-func (s ComponentService) generateComponent(name, componentName, componentType, componentDir, fileExtension, templateName string) error {
+func (s ComponentService) generateComponent(name, componentType, componentDir, fileExtension, templateName string) error {
 	hasDir, err := s.filesystem.HasDirectoryOrFile(componentDir)
 	if err != nil {
 		return fmt.Errorf("unable to check if %v directory exists: %v", componentDir, err.Error())
@@ -81,6 +81,10 @@ func (s ComponentService) generateComponent(name, componentName, componentType, 
 	}
 	defer file.Close()
 
+	componentName := toSentenceCase(name)
+	if componentType == VIEW_COMPONENT_TYPE {
+		componentName = name
+	}
 	if err := s.templates.ExecuteTemplate(file, templateName, ComponentConfig{Name: componentName}); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
