@@ -1,0 +1,22 @@
+import m from "mithril";
+
+interface Attrs {
+  onclick: () => void;
+}
+
+const Button: m.Component<Attrs> = {
+  view: (vn) => {
+    let { onclick } = vn.attrs;
+
+    return m(
+      "div",
+      {
+        class: "w-fit h-fit px-3 py-1 rounded bg-slate-300 hover:bg-slate-200 cursor-pointer",
+        onclick,
+      },
+      vn.children
+    );
+  },
+};
+
+export default Button;

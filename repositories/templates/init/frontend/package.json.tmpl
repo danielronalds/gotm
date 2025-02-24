@@ -1,0 +1,25 @@
+{
+  "name": "init",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "esbuild src/index.ts --bundle --outfile=dist/main.js --watch",
+    "build": "esbuild src/index.ts --minify --bundle --outfile=dist/main.js && tailwindcss -i ./global.css -o ./dist/output.css",
+    "css": "npx tailwindcss -i ./global.css -o ./dist/output.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "mithril": "^2.2.9",
+    "timesago": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/mithril": "^2.2.7",
+    "@types/node": "^22.10.5",
+    "esbuild": "^0.24.0",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,22 @@
+import m from "mithril";
+
+interface IHelloModel {
+  GetHello: () => Promise<string>;
+}
+
+type HelloResponse = {
+  message: string;
+}
+
+const HelloModel: IHelloModel = {
+  GetHello: async () => {
+    const data: HelloResponse = await m.request({
+        method: "get",
+        url: "/api/hello"
+    });
+
+    return data.message;
+  }
+}
+
+export default HelloModel;

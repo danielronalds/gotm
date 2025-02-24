@@ -2,9 +2,7 @@ package repositories
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
-	"os"
 	"text/template"
 )
 
@@ -24,7 +22,7 @@ func getAllFilenames(efs embed.FS, pathFiles string) ([]string, error) {
 	return arr, nil
 }
 
-//go:embed templates
+//go:embed templates/*
 var templateFS embed.FS
 
 type TemplatesRepository struct {
@@ -32,19 +30,16 @@ type TemplatesRepository struct {
 }
 
 func NewTemplatesRepository() TemplatesRepository {
-	templates, err := template.New("test").ParseFS(templateFS, "templates/*.txt")
+	templates, err := template.New("").ParseFS(templateFS,
+		"templates/init/*.tmpl",
+		"templates/init/controllers/*.tmpl",
+		"templates/init/**/*.tmpl",
+		"templates/init/frontend/**/*.tmpl",
+		"templates/init/frontend/src/**/*.tmpl",
+		"templates/init/frontend/src/views/**/*.tmpl",
+	)
 
 	if err != nil {
-		panic(err)
-	}
-
-	files, _ := getAllFilenames(templateFS, "templates")
-
-	for _, file := range files {
-		fmt.Println(file)
-	}
-
-	if err := templates.ExecuteTemplate(os.Stdout, "templates/test.txt", nil); err != nil {
 		panic(err)
 	}
 
