@@ -31,7 +31,7 @@ func NewAddController(generator ComponentGenerator) AddController {
 	return AddController{generatorMap}
 }
 
-func (c AddController) HandleCmd(args []string) error {
+func (c AddController) Handle(args []string) error {
 	if len(args) == 0 || args[0] != "add" {
 		return errors.New("passed to incorrect controller! Passed to `add` controller")
 	}

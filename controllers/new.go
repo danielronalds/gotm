@@ -18,7 +18,7 @@ func NewNewController(initialiser ProjectInitialiser) NewController {
 	return NewController{initialiser}
 }
 
-func (c NewController) HandleCmd(args []string) error {
+func (c NewController) Handle(args []string) error {
 	if len(args) == 0 || args[0] != "new" {
 		return errors.New("passed to incorrect controller! Passed to `new` controller")
 	}

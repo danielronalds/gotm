@@ -11,7 +11,7 @@ import (
 )
 
 type Controller interface {
-	HandleCmd(args []string) error
+	Handle(args []string) error
 }
 
 func main() {
@@ -23,25 +23,21 @@ func main() {
 
 	args := os.Args[1:] // Removing program name
 
-	var controller Controller
-
-	command := "help"
+	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
-		command = strings.ToLower(args[0])
+		cmd = strings.ToLower(args[0])
 	}
 
-	switch command {
-	case "new":
-		controller = c.NewNewController(initService)
-	case "add":
-		controller = c.NewAddController(componentService)
-	default:
+	controllerMap := map[string]Controller{
+		"new": c.NewNewController(initService),
+		"add": c.NewAddController(componentService),
+	}
+	controller, ok := controllerMap[cmd]
+	if !ok {
 		controller = c.NewHelpController()
 	}
 
-	err := controller.HandleCmd(args)
-
-	if err != nil {
+	if err := controller.Handle(args); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 		os.Exit(1)
 	}

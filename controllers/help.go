@@ -11,7 +11,7 @@ func NewHelpController() HelpController {
 	return HelpController{}
 }
 
-func (c HelpController) HandleCmd(args []string) error {
+func (c HelpController) Handle(args []string) error {
 	if len(args) > 0 && args[0] != "help" {
 		fmt.Fprintf(os.Stderr, "\"%v\" is an unknown command\n\n", args[0])
 	}
