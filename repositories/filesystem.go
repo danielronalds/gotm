@@ -34,11 +34,7 @@ func (r FilesystemRepository) CreateDirectory(directory string) error {
 	}
 
 	// 0755 is the default permission bitmask for a directory in linux
-	if err := os.Mkdir(directory, 0755); err != nil {
-		return err
-	}
-
-	return nil
+	return os.Mkdir(directory, 0755)
 }
 
 func (r FilesystemRepository) CreateFile(filename string) (*os.File, error) {
