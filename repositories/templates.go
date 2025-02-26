@@ -6,7 +6,7 @@ import (
 	"text/template"
 )
 
-//go:embed templates/*
+//go:embed all:templates/*
 var templateFS embed.FS
 
 type TemplatesRepository struct {

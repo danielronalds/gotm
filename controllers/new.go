@@ -29,7 +29,9 @@ func (c NewController) Handle(args []string) error {
 
 	projectName := strings.TrimSuffix(args[1], "/") // Ensuring no path is accidentally included
 
-	c.initialiser.InitProject("danielronalds", projectName) // TODO: make user configurable username
+	if err := c.initialiser.InitProject("danielronalds", projectName); err != nil { // TODO: make user configurable username
+		return fmt.Errorf("unable to create project \"%v\": %v", projectName, err)
+	}
 
 	fmt.Printf("Created \"%v\" project", projectName)
 
