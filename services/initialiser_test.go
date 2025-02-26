@@ -7,19 +7,19 @@ import (
 )
 
 // Mock implementation of the filesystem, does not do any error checking
-type MockFilesystem struct {
+type mockFilesystem struct {
 	hasDirectoryOrFileReturn bool
 }
 
-func (m MockFilesystem) HasDirectoryOrFile(directory string) (bool, error) {
+func (m mockFilesystem) HasDirectoryOrFile(directory string) (bool, error) {
 	return m.hasDirectoryOrFileReturn, nil
 }
 
-func (m MockFilesystem) CreateDirectory(directory string) error {
+func (m mockFilesystem) CreateDirectory(directory string) error {
 	return os.Mkdir(directory, 0755)
 }
 
-func (m MockFilesystem) CreateFile(filename string) (*os.File, error) {
+func (m mockFilesystem) CreateFile(filename string) (*os.File, error) {
 	file, err := os.Create(filename)
 	if err != nil {
 		panic(err)
@@ -28,17 +28,17 @@ func (m MockFilesystem) CreateFile(filename string) (*os.File, error) {
 }
 
 // Mock implementation of templates repository, just writes "mock-data" to the given file
-type MockTemplates struct{}
+type mockTemplates struct{}
 
-func (m MockTemplates) ExecuteTemplate(wr io.Writer, name string, data any) error {
+func (m mockTemplates) ExecuteTemplate(wr io.Writer, name string, data any) error {
 	_, err := wr.Write([]byte("mock-data"))
 	return err
 }
 
 func TestInitialiseProjectCreatesExpectedFiles(t *testing.T) {
 	// Arrange
-	filesystem := MockFilesystem{hasDirectoryOrFileReturn: false}
-	templates := MockTemplates{}
+	filesystem := mockFilesystem{hasDirectoryOrFileReturn: false}
+	templates := mockTemplates{}
 	initService := NewInitialiserService(filesystem, templates)
 
 	// Act

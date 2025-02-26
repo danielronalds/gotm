@@ -67,21 +67,18 @@ func TestCreateDirectoryWorks(t *testing.T) {
 	removeFile(TEST_DIR, t)
 }
 
-func TestCreateDirWorksWithNestedDirectories(t *testing.T) {
+func TestCreateDirCreatesRequiredParentDirectories(t *testing.T) {
 	// Arrange
 	SECOND_DIR := fmt.Sprintf("%v/test", TEST_DIR)
 	service := NewFilesystemRepository()
 
 	// Act
-	if err := service.CreateDirectory(TEST_DIR); err != nil {
-		t.Fatalf("Failed to create directory: %v", err.Error())
-	}
 	if err := service.CreateDirectory(SECOND_DIR); err != nil {
 		t.Fatalf("Failed to create directory: %v", err.Error())
 	}
 
 	// Assert
-	if hasDir, err := service.HasDirectoryOrFile(TEST_DIR); err != nil || !hasDir {
+	if hasDir, err := service.HasDirectoryOrFile(SECOND_DIR); err != nil || !hasDir {
 		t.Fatalf("Failed to create directory")
 	}
 	removeFile(SECOND_DIR, t)
@@ -100,7 +97,7 @@ func TestCreateDirectoryReturnsExpectedErrorIfFileExists(t *testing.T) {
 
 	// Assert
 	removeFile(TEST_DIR, t)
-	if err.Error() != "file with that name already exists" {
+	if err.Error() != "directory with that name already exists" {
 		t.Fatalf("error did not return with expected content: %v", err.Error())
 	}
 }
