@@ -27,8 +27,9 @@ func run(args []string) {
 	}
 
 	controllerMap := map[string]Controller{
-		"new": c.NewNewController(initService),
-		"add": c.NewAddController(componentService),
+		"new":  c.NewNewController(initService),
+		"init": c.NewInitController(initService),
+		"add":  c.NewAddController(componentService),
 	}
 	controller, ok := controllerMap[cmd]
 	if !ok {

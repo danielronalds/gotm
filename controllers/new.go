@@ -7,7 +7,7 @@ import (
 )
 
 type ProjectInitialiser interface {
-	InitProject(username string, directoryName string) error
+	InitProject(username, projectName, projectDir string) error
 }
 
 type NewController struct {
@@ -29,7 +29,7 @@ func (c NewController) Handle(args []string) error {
 
 	projectName := strings.TrimSuffix(args[1], "/") // Ensuring no path is accidentally included
 
-	if err := c.initialiser.InitProject("danielronalds", projectName); err != nil { // TODO: make user configurable username
+	if err := c.initialiser.InitProject("danielronalds", projectName, projectName); err != nil { // TODO: make user configurable username
 		return fmt.Errorf("unable to create project \"%v\": %v", projectName, err)
 	}
 

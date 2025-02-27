@@ -12,6 +12,12 @@ func delete(filename string) {
 	}
 }
 
+func changeDir(dir string) {
+	if err := os.Chdir(dir); err != nil {
+		panic(err)
+	}
+}
+
 // End-to-end test of the "new" command
 func TestRunWithNewCmd(t *testing.T) {
 	// Arrange
@@ -48,16 +54,58 @@ func TestRunWithNewCmd(t *testing.T) {
 	delete("testproject")
 }
 
-type addCmdConfig struct {
-	args         []string
-	expectedFile string
-	cleanup      string
+// End-to-end test of the "new" command
+func TestRunWithInitCmd(t *testing.T) {
+	// Arrange
+	dir := "temptest"
+	if err := os.Mkdir(dir, 0775); err != nil {
+		panic(err)
+	}
+	changeDir(dir)
+
+	args := []string{"init", "testproject"}
+
+	// Act
+	run(args)
+
+	// Assert
+	expectedFiles := []string{
+		".gitignore",
+		"go.mod",
+		"main.go",
+		"controllers/hello.go",
+		"frontend/favicon.ico",
+		"frontend/global.css",
+		"frontend/index.html",
+		"frontend/package.json",
+		"frontend/tailwind.config.js",
+		"frontend/tsconfig.json",
+		"frontend/src/index.ts",
+		"frontend/src/models/hello.ts",
+		"frontend/src/views/Button.ts",
+		"frontend/src/views/pages/HomePage.ts",
+	}
+
+	for _, file := range expectedFiles {
+		_, err := os.Stat(file)
+		if err != nil {
+			changeDir("..")
+			delete(dir)
+			panic(err)
+		}
+	}
+	changeDir("..")
+	delete(dir)
 }
 
 // End-to-end test for the "add" command
 func TestRunWithAddCmd(t *testing.T) {
 	// Arrange
-	inputs := []addCmdConfig{
+	inputs := []struct {
+		args         []string
+		expectedFile string
+		cleanup      string
+	}{
 		// args, expected generated file
 		{args: []string{"add", "controller", "vehicle"}, expectedFile: "controllers/vehicle.go", cleanup: "controllers/vehicle.go"},
 		{args: []string{"add", "service", "vehicle"}, expectedFile: "services/vehicle.go", cleanup: "services/vehicle.go"},

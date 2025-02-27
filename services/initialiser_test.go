@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -41,38 +42,88 @@ func TestInitialiseProjectCreatesExpectedFiles(t *testing.T) {
 	templates := mockTemplates{}
 	initService := NewInitialiserService(filesystem, templates)
 
+	username := "mock-user"
+	projectName := "testproject"
+	projectDir := "testproject"
+
 	// Act
-	initService.InitProject("mock-user", "testproject")
+	initService.InitProject(username, projectName, projectDir)
 
 	// Assert
 	expectedFiles := []string{
-		"testproject/.gitignore",
-		"testproject/go.mod",
-		"testproject/main.go",
-		"testproject/controllers/hello.go",
-		"testproject/frontend/favicon.ico",
-		"testproject/frontend/global.css",
-		"testproject/frontend/index.html",
-		"testproject/frontend/package.json",
-		"testproject/frontend/tailwind.config.js",
-		"testproject/frontend/tsconfig.json",
-		"testproject/frontend/src/index.ts",
-		"testproject/frontend/src/models/hello.ts",
-		"testproject/frontend/src/views/Button.ts",
-		"testproject/frontend/src/views/pages/HomePage.ts",
+		".gitignore",
+		"go.mod",
+		"main.go",
+		"controllers/hello.go",
+		"frontend/favicon.ico",
+		"frontend/global.css",
+		"frontend/index.html",
+		"frontend/package.json",
+		"frontend/tailwind.config.js",
+		"frontend/tsconfig.json",
+		"frontend/src/index.ts",
+		"frontend/src/models/hello.ts",
+		"frontend/src/views/Button.ts",
+		"frontend/src/views/pages/HomePage.ts",
 	}
 
 	for _, file := range expectedFiles {
-		_, err := os.Stat(file)
+		_, err := os.Stat(fmt.Sprintf("%v/%v", projectDir, file))
 		if err != nil {
-			if removalErr := os.RemoveAll("testproject"); removalErr != nil {
+			if removalErr := os.RemoveAll(projectDir); removalErr != nil {
 				panic(removalErr)
 			}
 			panic(err)
 		}
 	}
 
-	if err := os.RemoveAll("testproject"); err != nil {
+	if err := os.RemoveAll(projectDir); err != nil {
+		panic(err)
+	}
+}
+
+func TestInitialiseProjectCreatesExpectedFilesIfProjectNameDiffersFromDirName(t *testing.T) {
+	// Arrange
+	filesystem := mockFilesystem{hasDirectoryOrFileReturn: false}
+	templates := mockTemplates{}
+	initService := NewInitialiserService(filesystem, templates)
+
+	username := "mock-user"
+	projectName := "testproject"
+	projectDir := "differentdirectory"
+
+	// Act
+	initService.InitProject(username, projectName, projectDir)
+
+	// Assert
+	expectedFiles := []string{
+		".gitignore",
+		"go.mod",
+		"main.go",
+		"controllers/hello.go",
+		"frontend/favicon.ico",
+		"frontend/global.css",
+		"frontend/index.html",
+		"frontend/package.json",
+		"frontend/tailwind.config.js",
+		"frontend/tsconfig.json",
+		"frontend/src/index.ts",
+		"frontend/src/models/hello.ts",
+		"frontend/src/views/Button.ts",
+		"frontend/src/views/pages/HomePage.ts",
+	}
+
+	for _, file := range expectedFiles {
+		_, err := os.Stat(fmt.Sprintf("%v/%v", projectDir, file))
+		if err != nil {
+			if removalErr := os.RemoveAll(projectDir); removalErr != nil {
+				panic(removalErr)
+			}
+			panic(err)
+		}
+	}
+
+	if err := os.RemoveAll(projectDir); err != nil {
 		panic(err)
 	}
 }

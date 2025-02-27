@@ -5,12 +5,7 @@ import (
 	"strings"
 )
 
-type InitialiserServiceConfig struct {
-	ProjectName    string
-	GithubUsername string
-}
-
-// Service for hanlding initialising new projects
+// Service for handling initialising new projects
 type InitialiserService struct {
 	filesystem FilesystemReaderWriter
 	templates  TemplatesWriter
@@ -20,13 +15,16 @@ func NewInitialiserService(filesystem FilesystemReaderWriter, templates Template
 	return InitialiserService{filesystem, templates}
 }
 
-func (s InitialiserService) InitProject(username string, projectName string) error {
-	if hasDir, err := s.filesystem.HasDirectoryOrFile(projectName); err != nil || hasDir {
-		return fmt.Errorf("%v already exists in this directory", projectName)
-	}
+func (s InitialiserService) InitProject(username, projectName, projectDir string) error {
+	// Only create a directory if we're not working in the current dir
+	if projectDir != "." {
+		if hasDir, err := s.filesystem.HasDirectoryOrFile(projectDir); err != nil || hasDir {
+			return fmt.Errorf("%v already exists in this directory", projectDir)
+		}
 
-	if err := s.filesystem.CreateDirectory(projectName); err != nil {
-		return fmt.Errorf("failed to create '%v' directory", projectName)
+		if err := s.filesystem.CreateDirectory(projectDir); err != nil {
+			return fmt.Errorf("failed to create '%v' directory", projectDir)
+		}
 	}
 
 	// Creating required directories
@@ -40,7 +38,7 @@ func (s InitialiserService) InitProject(username string, projectName string) err
 	}
 
 	for _, dir := range directories {
-		dirWithProject := fmt.Sprintf("%v/%v", projectName, dir)
+		dirWithProject := fmt.Sprintf("%v/%v", projectDir, dir)
 
 		if err := s.filesystem.CreateDirectory(dirWithProject); err != nil {
 			return fmt.Errorf("failed to create '%v' directory", dirWithProject)
@@ -67,13 +65,16 @@ func (s InitialiserService) InitProject(username string, projectName string) err
 		"frontend/src/views/pages/HomePage.ts",
 	}
 
-	config := InitialiserServiceConfig{
+	config := struct {
+		ProjectName    string
+		GithubUsername string
+	}{
 		ProjectName:    projectName,
 		GithubUsername: username,
 	}
 
 	for _, filepath := range files {
-		filepathWithProject := fmt.Sprintf("%v/%v", projectName, filepath)
+		filepathWithProject := fmt.Sprintf("%v/%v", projectDir, filepath)
 		file, err := s.filesystem.CreateFile(filepathWithProject)
 		if err != nil {
 			return fmt.Errorf("failed to create '%v' file", filepath)
