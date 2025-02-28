@@ -18,12 +18,10 @@ func (c HelloController) Init() {
 	c.mux.HandleFunc("GET /api/hello", c.HandleGetHello)
 }
 
-type GetHelloResponse struct {
-	Message string `json:"message"`
-}
-
 func (c HelloController) HandleGetHello(w http.ResponseWriter, r *http.Request) {
-	response := GetHelloResponse{Message: "Hello from the server!"}
+	response := struct {
+		Message string `json:"message"`
+	}{Message: "Hello from the server!"}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
