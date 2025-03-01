@@ -5,15 +5,16 @@ import (
 	"fmt"
 )
 
-type ShellService interface {
-	ExecuteCmdWithPipedOutput(dir, program string, args ...string) error
+type DependencyInstaller interface {
+	InstallNpmDeps(projectRoot string) error
+	InstallGoDeps(projectRoot string) error
 }
 
 type InstallController struct {
-	shell ShellService
+	installer DependencyInstaller
 }
 
-func NewInstallController(shell ShellService) InstallController {
+func NewInstallController(shell DependencyInstaller) InstallController {
 	return InstallController{shell}
 }
 
@@ -23,12 +24,12 @@ func (c InstallController) Handle(args []string) error {
 	}
 
 	fmt.Println("Installing npm deps")
-	if err := c.shell.ExecuteCmdWithPipedOutput("frontend", "npm", "install"); err != nil {
+	if err := c.installer.InstallNpmDeps("."); err != nil {
 		return fmt.Errorf("unable to install project deps: %v", err.Error())
 	}
 
 	fmt.Println("\nInstalling go deps")
-	if err := c.shell.ExecuteCmdWithPipedOutput(".", "go", "mod", "tidy"); err != nil {
+	if err := c.installer.InstallGoDeps("."); err != nil {
 		return fmt.Errorf("unable to install project deps: %v", err.Error())
 	}
 

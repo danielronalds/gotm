@@ -17,10 +17,11 @@ type Controller interface {
 func run(args []string) {
 	filesystem := r.NewFilesystemRepository()
 	templates := r.NewTemplatesRepository()
+	shell := r.NewShellRepository()
 
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)
-	shellService := s.NewShellService()
+	buildService := s.NewBuildService(shell)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -30,7 +31,7 @@ func run(args []string) {
 	controllerMap := map[string]Controller{
 		"new":     c.NewNewController(initService),
 		"init":    c.NewInitController(initService),
-		"install": c.NewInstallController(shellService),
+		"install": c.NewInstallController(buildService),
 		"add":     c.NewAddController(componentService),
 	}
 	controller, ok := controllerMap[cmd]

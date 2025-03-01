@@ -1,17 +1,17 @@
-package services
+package repositories
 
 import (
 	"os"
 	"os/exec"
 )
 
-type ShellService struct{}
+type ShellRepository struct{}
 
-func NewShellService() ShellService {
-	return ShellService{}
+func NewShellRepository() ShellRepository {
+	return ShellRepository{}
 }
 
-func (s ShellService) ExecuteCmdWithPipedOutput(dir, program string, args ...string) error {
+func (r ShellRepository) ExecuteCmdWithPipedOutput(dir, program string, args ...string) error {
 	workdir, err := os.Getwd()
 	if err != nil {
 		return err
