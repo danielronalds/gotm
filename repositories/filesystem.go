@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 // Repository for handling filesystem operations
@@ -25,7 +26,32 @@ func (r FilesystemRepository) HasDirectoryOrFile(directory string) (bool, error)
 	}
 
 	return false, err
+}
 
+func (r FilesystemRepository) ReadDirRecursive(directory string) ([]string, error) {
+	files := make([]string, 0)
+
+	err := filepath.WalkDir(directory, func(path string, d fs.DirEntry, err error) error {
+		if !d.IsDir() {
+			files = append(files, path)
+		}
+		return nil
+	})
+
+	return files, err
+}
+
+func (r FilesystemRepository) ReadFile(filename string) (string, error) {
+	if hasFile, err := r.HasDirectoryOrFile(filename); err != nil || !hasFile {
+		return "", errors.New("file with that name does not exist")
+	}
+
+	contents, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	return string(contents), nil
 }
 
 func (r FilesystemRepository) CreateDirectory(directory string) error {
