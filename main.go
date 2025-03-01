@@ -20,6 +20,7 @@ func run(args []string) {
 
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)
+	shellService := s.NewShellService()
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -27,9 +28,10 @@ func run(args []string) {
 	}
 
 	controllerMap := map[string]Controller{
-		"new":  c.NewNewController(initService),
-		"init": c.NewInitController(initService),
-		"add":  c.NewAddController(componentService),
+		"new":     c.NewNewController(initService),
+		"init":    c.NewInitController(initService),
+		"install": c.NewInstallController(shellService),
+		"add":     c.NewAddController(componentService),
 	}
 	controller, ok := controllerMap[cmd]
 	if !ok {
