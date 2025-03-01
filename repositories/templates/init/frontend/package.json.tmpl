@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "esbuild src/index.ts --bundle --outfile=dist/main.js --watch",
+    "dev": "esbuild src/index.ts --bundle --outfile=dist/main.js",
     "build": "esbuild src/index.ts --minify --bundle --outfile=dist/main.js && tailwindcss -i ./global.css -o ./dist/output.css",
     "css": "npx tailwindcss -i ./global.css -o ./dist/output.css"
   },
