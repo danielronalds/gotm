@@ -16,7 +16,7 @@ func (c HelpController) Handle(args []string) error {
 		fmt.Fprintf(os.Stderr, "\"%v\" is an unknown command\n\n", args[0])
 	}
 
-	help := `gotm v0.0.3
+	help := `gotm v0.0.4
 
 A cli tool building opinionated full stack web applications with the GOTM stack
 
@@ -25,6 +25,7 @@ Commands
   init		  Creates a new project with the passed in name, in the current directory
   install     Installs project dependencies
   add         Adds a component to the project [controller, service, repository, view, model]
+  watch       Watches for file changes, rebuilding the project when required
   help        Show this menu
 `
 

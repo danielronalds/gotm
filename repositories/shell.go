@@ -11,6 +11,23 @@ func NewShellRepository() ShellRepository {
 	return ShellRepository{}
 }
 
+func (r ShellRepository) ExecuteCmdWithWithOutput(dir, program string, args ...string) (string, error) {
+	workdir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	if err := os.Chdir(dir); err != nil {
+		return "", err
+	}
+
+	output := ""
+
+	cmd := exec.Command(program, args...)
+	cmd.CombinedOutput()
+
+	return output, os.Chdir(workdir)
+}
+
 func (r ShellRepository) ExecuteCmdWithPipedOutput(dir, program string, args ...string) error {
 	workdir, err := os.Getwd()
 	if err != nil {

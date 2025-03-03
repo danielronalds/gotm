@@ -70,3 +70,11 @@ func (r FilesystemRepository) CreateFile(filename string) (*os.File, error) {
 
 	return os.Create(filename)
 }
+
+func (r FilesystemRepository) DeleteFileRecursive(filename string) error {
+	if hasFile, err := r.HasDirectoryOrFile(filename); err != nil || !hasFile {
+		return errors.New("file with that name does not exist")
+	}
+
+	return os.RemoveAll(filename)
+}

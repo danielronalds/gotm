@@ -12,6 +12,13 @@ type mockFilesystem struct {
 	hasDirectoryOrFileReturn bool
 }
 
+func (m mockFilesystem) ReadDirRecursive(directory string) ([]string, error) {
+	return make([]string, 0), nil
+}
+func (m mockFilesystem) ReadFile(filename string) (string, error) {
+	return "Mock contents", nil
+}
+
 func (m mockFilesystem) HasDirectoryOrFile(directory string) (bool, error) {
 	return m.hasDirectoryOrFileReturn, nil
 }
@@ -26,6 +33,10 @@ func (m mockFilesystem) CreateFile(filename string) (*os.File, error) {
 		panic(err)
 	}
 	return file, nil
+}
+
+func (m mockFilesystem) DeleteFileRecursive(filename string) error {
+	return os.RemoveAll(filename)
 }
 
 // Mock implementation of templates repository, just writes "mock-data" to the given file
