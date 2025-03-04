@@ -12,6 +12,11 @@ func NewFilewatcherService(filesystem FilesystemReader) FilewatcherService {
 }
 
 func (s FilewatcherService) UpdateCache(directory string) error {
+	// Cleaning cache
+	for k := range s.cache {
+		delete(s.cache, k)
+	}
+
 	projectFiles, err := s.filesystem.ReadDirRecursive(directory)
 	if err != nil {
 		return err

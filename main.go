@@ -19,11 +19,13 @@ func run(args []string) {
 	templates := r.NewTemplatesRepository()
 	shell := r.NewShellRepository()
 
+	projectRoot := "."
+
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)
-	buildService := s.NewBuildService(filesystem, shell, ".")
+	buildService := s.NewBuildService(filesystem, shell, projectRoot)
 	filewatcherService := s.NewFilewatcherService(filesystem)
-	runnerService := s.NewRunnerService()
+	runnerService := s.NewRunnerService(projectRoot)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -43,7 +45,7 @@ func run(args []string) {
 	}
 
 	if err := controller.Handle(args); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err.Error())
+		fmt.Fprintf(os.Stderr, "\n%v\n", err.Error())
 		os.Exit(1)
 	}
 }

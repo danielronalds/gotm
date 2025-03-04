@@ -36,7 +36,7 @@ func (s BuildService) buildFrontend() error {
 	return s.shell.ExecuteCmdWithPipedOutput(s.fromRoot("frontend"), "npm", "run", "build")
 }
 
-func (s BuildService) Build(dev bool, outputDir string) error {
+func (s BuildService) DevBuild(outputDir string) error {
 	// Creating Output dir
 	hasDir, err := s.filesystem.HasDirectoryOrFile(s.fromRoot(outputDir))
 	if err != nil {

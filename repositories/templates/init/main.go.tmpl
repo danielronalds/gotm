@@ -16,6 +16,6 @@ func main() {
 	helloController.Init()
 
 	port := ":3000"
-	fmt.Printf("Serving on %v", port)
+	fmt.Printf("Serving on %v\n", port)
 	http.ListenAndServe(port, mux)
 }

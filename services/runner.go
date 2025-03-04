@@ -7,12 +7,13 @@ import (
 )
 
 type RunnerService struct {
-	process *exec.Cmd
+	process     *exec.Cmd
+	projectRoot string
 }
 
-func NewRunnerService() RunnerService {
+func NewRunnerService(projectRoot string) RunnerService {
 	var process *exec.Cmd = nil
-	return RunnerService{process}
+	return RunnerService{process, projectRoot}
 }
 
 func (s *RunnerService) Run() error {
@@ -22,8 +23,9 @@ func (s *RunnerService) Run() error {
 		}
 	}
 
-	cmd := exec.Command("bash", "-c", "\"./.main.tmp\"")
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("\"%v/.main.tmp\"", s.projectRoot))
 	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {

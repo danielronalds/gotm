@@ -42,6 +42,7 @@ func (r ShellRepository) ExecuteCmdWithPipedOutput(dir, program string, args ...
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
+		os.Chdir(workdir)
 		return err
 	}
 

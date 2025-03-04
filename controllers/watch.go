@@ -12,7 +12,7 @@ type FileWatcher interface {
 }
 
 type ProjectBuilder interface {
-	Build(dev bool, outputDir string) error
+	DevBuild(outputDir string) error
 }
 
 type ProjectRunner interface {
@@ -46,13 +46,15 @@ func (c WatchController) Handle(args []string) error {
 		if projectChanged {
 			fmt.Println("\nDetected changes, rebuilding project")
 
-			if err := c.builder.Build(true, "build"); err != nil {
+			if err := c.builder.DevBuild("build"); err != nil {
 				fmt.Fprintf(os.Stderr, "failed to build project:\n %v", err.Error())
 				continue
 			}
 			if err := c.filewatcher.UpdateCache("."); err != nil {
 				fmt.Fprintf(os.Stderr, "failed to update file cache: %v\n", err.Error())
 			}
+
+			fmt.Println()
 
 			c.runner.Stop()
 			c.runner.Run()
