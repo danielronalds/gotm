@@ -27,23 +27,23 @@ func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesW
 }
 
 func (s ComponentService) GenerateController(name string) error {
-	return s.generateComponent(name, "controller", CONTROLLERS_DIR, ".go", "controller.go.tmpl")
+	return s.generateComponent(name, "controller", s.filesystem.FromRoot(CONTROLLERS_DIR), ".go", "controller.go.tmpl")
 }
 
 func (s ComponentService) GenerateService(name string) error {
-	return s.generateComponent(name, "service", SERVICES_DIR, ".go", "service.go.tmpl")
+	return s.generateComponent(name, "service", s.filesystem.FromRoot(SERVICES_DIR), ".go", "service.go.tmpl")
 }
 
 func (s ComponentService) GenerateRepository(name string) error {
-	return s.generateComponent(name, "repository", REPOSITORIES_DIR, ".go", "repository.go.tmpl")
+	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), ".go", "repository.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
-	return s.generateComponent(name, "model", MODELS_DIR, ".ts", "model.ts.tmpl")
+	return s.generateComponent(name, "model", s.filesystem.FromRoot(MODELS_DIR), ".ts", "model.ts.tmpl")
 }
 
 func (s ComponentService) GenerateView(name string) error {
-	return s.generateComponent(name, VIEW_COMPONENT_TYPE, VIEWS_DIR, ".ts", "view.ts.tmpl")
+	return s.generateComponent(name, VIEW_COMPONENT_TYPE, s.filesystem.FromRoot(VIEWS_DIR), ".ts", "view.ts.tmpl")
 }
 
 // general method for dealing with the logic of generating a component.

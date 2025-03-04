@@ -2,16 +2,34 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Repository for handling filesystem operations
-type FilesystemRepository struct{}
+type FilesystemRepository struct {
+	root string
+}
 
 func NewFilesystemRepository() FilesystemRepository {
-	return FilesystemRepository{}
+	root := findProjectRoot()
+	return FilesystemRepository{root}
+}
+
+func findProjectRoot() string {
+	// TODO: implement alg. for finding root directory of a project (likely where main.go is present?)
+	return "."
+}
+
+func (r FilesystemRepository) Root() string {
+	return r.root
+}
+
+func (r FilesystemRepository) FromRoot(path string) string {
+	return fmt.Sprintf("%v/%v", r.root, strings.TrimPrefix(path, "/"))
 }
 
 func (r FilesystemRepository) HasDirectoryOrFile(directory string) (bool, error) {

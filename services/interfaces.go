@@ -18,6 +18,8 @@ type FilesystemReader interface {
 	HasDirectoryOrFile(directory string) (bool, error)
 	ReadDirRecursive(directory string) ([]string, error)
 	ReadFile(filename string) (string, error)
+	Root() string
+	FromRoot(path string) string
 }
 
 type FilesystemWriter interface {

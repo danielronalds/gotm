@@ -22,7 +22,7 @@ A cli tool building opinionated full stack web applications with the GOTM stack
 
 Commands
   new         Creates a new project with the passed in name
-  init		  Creates a new project with the passed in name, in the current directory
+  init        Creates a new project with the passed in name, in the current directory
   install     Installs project dependencies
   add         Adds a component to the project [controller, service, repository, view, model]
   watch       Watches for file changes, rebuilding the project when required

@@ -19,13 +19,11 @@ func run(args []string) {
 	templates := r.NewTemplatesRepository()
 	shell := r.NewShellRepository()
 
-	projectRoot := "."
-
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)
-	buildService := s.NewBuildService(filesystem, shell, projectRoot)
+	buildService := s.NewBuildService(filesystem, shell)
 	filewatcherService := s.NewFilewatcherService(filesystem)
-	runnerService := s.NewRunnerService(projectRoot)
+	runnerService := s.NewRunnerService(filesystem)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -33,11 +31,11 @@ func run(args []string) {
 	}
 
 	controllerMap := map[string]Controller{
-		"new":     c.NewNewController(initService),
+		"new":     c.NewNewController(initService, filesystem),
 		"init":    c.NewInitController(initService),
 		"install": c.NewInstallController(buildService),
 		"add":     c.NewAddController(componentService),
-		"watch":   c.NewWatchController(filewatcherService, buildService, &runnerService),
+		"watch":   c.NewWatchController(filewatcherService, buildService, &runnerService, filesystem),
 	}
 	controller, ok := controllerMap[cmd]
 	if !ok {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -37,6 +38,14 @@ func (m mockFilesystem) CreateFile(filename string) (*os.File, error) {
 
 func (m mockFilesystem) DeleteFileRecursive(filename string) error {
 	return os.RemoveAll(filename)
+}
+
+func (m mockFilesystem) Root() string {
+	return "."
+}
+
+func (m mockFilesystem) FromRoot(path string) string {
+	return fmt.Sprintf("./%v", strings.TrimPrefix(path, "/"))
 }
 
 // Mock implementation of templates repository, just writes "mock-data" to the given file
