@@ -34,8 +34,6 @@ func NewWatchController(watcher FileWatcher, builder ProjectBuilder, runner Proj
 func (c WatchController) Handle(args []string) error {
 	fmt.Println("Watching project")
 
-	// FIXME: Crashes if file is deleted?
-
 	for {
 		time.Sleep(50 * time.Microsecond)
 

@@ -50,7 +50,7 @@ func (r FilesystemRepository) ReadDirRecursive(directory string) ([]string, erro
 	files := make([]string, 0)
 
 	err := filepath.WalkDir(directory, func(path string, d fs.DirEntry, err error) error {
-		if !d.IsDir() {
+		if !d.IsDir() && !strings.Contains(d.Name(), "node_modules") {
 			files = append(files, path)
 		}
 		return nil
@@ -61,7 +61,7 @@ func (r FilesystemRepository) ReadDirRecursive(directory string) ([]string, erro
 
 func (r FilesystemRepository) ReadFile(filename string) (string, error) {
 	if hasFile, err := r.HasDirectoryOrFile(filename); err != nil || !hasFile {
-		return "", errors.New("file with that name does not exist")
+		return "", nil // If the file doesn't exist, just return an empty string instead of an error
 	}
 
 	contents, err := os.ReadFile(filename)
