@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const DEV_BULID_GO_BIN = ".main.tmp"
+
 type BuildService struct {
 	filesystem FilesystemReaderWriter
 	shell      Shell
@@ -29,16 +31,31 @@ func (s BuildService) buildFrontend() error {
 	return s.shell.ExecuteCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "run", "build")
 }
 
-func (s BuildService) DevBuild(outputDir string) error {
+func (s BuildService) BuildDev() error {
 	// Building go project
-	binName := ".main.tmp"
-	if err := s.buildGoBin(binName); err != nil {
+	if err := s.buildGoBin(DEV_BULID_GO_BIN); err != nil {
 		return fmt.Errorf("unable to build go binary: %v", err)
 	}
 
 	// Building frontend
 	if err := s.buildFrontend(); err != nil {
 		return fmt.Errorf("unable to build frontend: %v", err)
+	}
+
+	return nil
+}
+
+func (s BuildService) CleanupDev() error {
+	hasFile, err := s.filesystem.HasDirectoryOrFile(s.filesystem.FromRoot(DEV_BULID_GO_BIN))
+	if err != nil {
+		return fmt.Errorf("failed to detect if dev go binary exists: %v", err)
+	}
+	if !hasFile {
+		return nil
+	}
+
+	if err := s.filesystem.DeleteFileRecursive(DEV_BULID_GO_BIN); err != nil {
+		return fmt.Errorf("failed to delete dev go binary: %v", err)
 	}
 
 	return nil
