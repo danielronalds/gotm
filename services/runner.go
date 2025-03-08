@@ -23,7 +23,7 @@ func (s *RunnerService) Run() error {
 		}
 	}
 
-	cmd := exec.Command("bash", "-c", s.filesystem.FromRoot("/.main.tmp"))
+	cmd := exec.Command("sh", "-c", s.filesystem.FromRoot("/.main.tmp"))
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
