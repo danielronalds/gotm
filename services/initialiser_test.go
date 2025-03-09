@@ -51,7 +51,7 @@ func (m mockFilesystem) FromRoot(path string) string {
 // Mock implementation of templates repository, just writes "mock-data" to the given file
 type mockTemplates struct{}
 
-func (m mockTemplates) ExecuteTemplate(wr io.Writer, name string, data any) error {
+func (m mockTemplates) WriteTemplate(wr io.Writer, name string, data any) error {
 	_, err := wr.Write([]byte("mock-data"))
 	return err
 }

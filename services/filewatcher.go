@@ -1,12 +1,17 @@
 package services
 
+type FilewatcherServiceFilesystem interface {
+	DirReader
+	FileReader
+}
+
 type FilewatcherService struct {
-	filesystem FilesystemReader
+	filesystem FilewatcherServiceFilesystem
 	// Cache for keeping track of previous reads of a file
 	cache map[string]string
 }
 
-func NewFilewatcherService(filesystem FilesystemReader) FilewatcherService {
+func NewFilewatcherService(filesystem FilewatcherServiceFilesystem) FilewatcherService {
 	cache := make(map[string]string)
 	return FilewatcherService{filesystem, cache}
 }

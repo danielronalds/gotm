@@ -5,13 +5,19 @@ import (
 	"strings"
 )
 
+type InitialiserServiceFilesystem interface {
+	DirCreater
+	DirReader
+	FileCreater
+}
+
 // Service for handling initialising new projects
 type InitialiserService struct {
-	filesystem FilesystemReaderWriter
+	filesystem InitialiserServiceFilesystem
 	templates  TemplatesWriter
 }
 
-func NewInitialiserService(filesystem FilesystemReaderWriter, templates TemplatesWriter) InitialiserService {
+func NewInitialiserService(filesystem InitialiserServiceFilesystem, templates TemplatesWriter) InitialiserService {
 	return InitialiserService{filesystem, templates}
 }
 
@@ -85,7 +91,7 @@ func (s InitialiserService) InitProject(username, projectName, projectDir string
 		filename := parts[len(parts)-1] // Last part will be the file
 		template := fmt.Sprintf("%v.tmpl", filename)
 
-		if err := s.templates.ExecuteTemplate(file, template, config); err != nil {
+		if err := s.templates.WriteTemplate(file, template, config); err != nil {
 			return fmt.Errorf("unable to write template: %v", err.Error())
 		}
 	}

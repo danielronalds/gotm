@@ -6,29 +6,35 @@ import (
 
 const DEV_BULID_GO_BIN = ".main.tmp"
 
-type BuildService struct {
-	filesystem FilesystemReaderWriter
-	shell      Shell
+type BuildServiceFilesystem interface {
+	ProjectRoot
+	DirReader
+	FileDeleter
 }
 
-func NewBuildService(filesystem FilesystemReaderWriter, shell Shell) BuildService {
+type BuildService struct {
+	filesystem BuildServiceFilesystem
+	shell      CmdRunner
+}
+
+func NewBuildService(filesystem BuildServiceFilesystem, shell CmdRunner) BuildService {
 	return BuildService{filesystem, shell}
 }
 
 func (s BuildService) InstallNpmDeps() error {
-	return s.shell.ExecuteCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "install")
+	return s.shell.RunCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "install")
 }
 
 func (s BuildService) InstallGoDeps() error {
-	return s.shell.ExecuteCmdWithPipedOutput(s.filesystem.Root(), "go", "mod", "tidy")
+	return s.shell.RunCmdWithPipedOutput(s.filesystem.Root(), "go", "mod", "tidy")
 }
 
 func (s BuildService) buildGoBin(binName string) error {
-	return s.shell.ExecuteCmdWithPipedOutput(s.filesystem.Root(), "go", "build", "-o", binName, ".")
+	return s.shell.RunCmdWithPipedOutput(s.filesystem.Root(), "go", "build", "-o", binName, ".")
 }
 
 func (s BuildService) buildFrontend() error {
-	return s.shell.ExecuteCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "run", "build")
+	return s.shell.RunCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "run", "build")
 }
 
 func (s BuildService) BuildDev() error {

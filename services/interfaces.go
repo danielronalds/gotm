@@ -5,30 +5,36 @@ import (
 	"os"
 )
 
-type Shell interface {
-	ExecuteCmdWithPipedOutput(dir, program string, args ...string) error
-	ExecuteCmdWithWithOutput(dir, program string, args ...string) (string, error)
+type CmdRunner interface {
+	RunCmdWithPipedOutput(dir, program string, args ...string) error
 }
 
 type TemplatesWriter interface {
-	ExecuteTemplate(wr io.Writer, name string, data any) error
+	WriteTemplate(wr io.Writer, name string, data any) error
 }
 
-type FilesystemReader interface {
+type FileReader interface {
+	ReadFile(filename string) (string, error)
+}
+
+type DirReader interface {
 	HasDirectoryOrFile(directory string) (bool, error)
 	ReadDirRecursive(directory string) ([]string, error)
-	ReadFile(filename string) (string, error)
+}
+
+type ProjectRoot interface {
 	Root() string
 	FromRoot(path string) string
 }
 
-type FilesystemWriter interface {
+type DirCreater interface {
 	CreateDirectory(directory string) error
-	CreateFile(filename string) (*os.File, error)
-	DeleteFileRecursive(filename string) error
 }
 
-type FilesystemReaderWriter interface {
-	FilesystemReader
-	FilesystemWriter
+type FileCreater interface {
+	CreateFile(filename string) (*os.File, error)
+}
+
+type FileDeleter interface {
+	DeleteFileRecursive(filename string) error
 }

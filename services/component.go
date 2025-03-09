@@ -13,16 +13,19 @@ const VIEWS_DIR string = "frontend/src/views"
 
 const VIEW_COMPONENT_TYPE = "view"
 
-type ComponentConfig struct {
-	Name string
+type ComponentServiceFilesystem interface {
+	ProjectRoot
+	FileCreater
+	DirCreater
+	DirReader
 }
 
 type ComponentService struct {
-	filesystem FilesystemReaderWriter
+	filesystem ComponentServiceFilesystem
 	templates  TemplatesWriter
 }
 
-func NewComponentService(filesystem FilesystemReaderWriter, templates TemplatesWriter) ComponentService {
+func NewComponentService(filesystem ComponentServiceFilesystem, templates TemplatesWriter) ComponentService {
 	return ComponentService{filesystem, templates}
 }
 
@@ -85,7 +88,7 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 	if componentType == VIEW_COMPONENT_TYPE {
 		componentName = name
 	}
-	if err := s.templates.ExecuteTemplate(file, templateName, ComponentConfig{Name: componentName}); err != nil {
+	if err := s.templates.WriteTemplate(file, templateName, struct{ Name string }{Name: componentName}); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
 

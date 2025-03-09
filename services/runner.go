@@ -6,12 +6,16 @@ import (
 	"os/exec"
 )
 
-type RunnerService struct {
-	process    *exec.Cmd
-	filesystem FilesystemReader
+type RunnerServiceFilesystem interface {
+	ProjectRoot
 }
 
-func NewRunnerService(filesystem FilesystemReader) RunnerService {
+type RunnerService struct {
+	process    *exec.Cmd
+	filesystem RunnerServiceFilesystem
+}
+
+func NewRunnerService(filesystem RunnerServiceFilesystem) RunnerService {
 	var process *exec.Cmd = nil
 	return RunnerService{process, filesystem}
 }

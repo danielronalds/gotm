@@ -32,6 +32,6 @@ func NewTemplatesRepository() TemplatesRepository {
 	return TemplatesRepository{templates}
 }
 
-func (r TemplatesRepository) ExecuteTemplate(wr io.Writer, name string, data any) error {
+func (r TemplatesRepository) WriteTemplate(wr io.Writer, name string, data any) error {
 	return r.templates.ExecuteTemplate(wr, name, data)
 }
