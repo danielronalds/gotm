@@ -15,9 +15,13 @@ type Controller interface {
 }
 
 func run(args []string) {
-	filesystem := r.NewFilesystemRepository()
 	templates := r.NewTemplatesRepository()
 	shell := r.NewShellRepository()
+	filesystem, err := r.NewFilesystemRepository()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\n%v\n", err.Error())
+		os.Exit(1)
+	}
 
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)

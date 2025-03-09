@@ -14,14 +14,30 @@ type FilesystemRepository struct {
 	root string
 }
 
-func NewFilesystemRepository() FilesystemRepository {
-	root := findProjectRoot()
-	return FilesystemRepository{root}
+func NewFilesystemRepository() (FilesystemRepository, error) {
+	root, err := findProjectRoot(".")
+	if err != nil {
+		return FilesystemRepository{}, err
+	}
+	return FilesystemRepository{root}, nil
 }
 
-func findProjectRoot() string {
-	// TODO: implement alg. for finding root directory of a project (likely where main.go is present?)
-	return "."
+// Recursive algorithim to find the root directory of the project, in order to set the programs context
+//
+// Note: the project root is considred the first parent directory to contain `main.go`
+func findProjectRoot(startDir string) (string, error) {
+	entries, err := os.ReadDir(startDir)
+	if err != nil {
+		return "", errors.New("unable to locate project root, are you sure you're in a GOTM project?")
+	}
+
+	for _, entry := range entries {
+		if entry.Name() == "main.go" {
+			return startDir, nil
+		}
+	}
+
+	return findProjectRoot(fmt.Sprintf("../%v", startDir))
 }
 
 func (r FilesystemRepository) Root() string {
