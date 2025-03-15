@@ -39,26 +39,26 @@ func (s FilewatcherService) UpdateCache(directory string) error {
 	return nil
 }
 
-func (s FilewatcherService) HaveFilesChanged(directory string) (bool, error) {
+func (s FilewatcherService) HaveFilesChanged(directory string) ([]string, error) {
+	filesChanged := make([]string, 0)
+
 	projectFiles, err := s.filesystem.ReadDirRecursive(directory)
 	if err != nil {
-		return false, err
+		return filesChanged, err
 	}
-
-	projectChanged := false
 
 	for _, file := range projectFiles {
 		changed, err := s.hasFileChanged(file)
 		if err != nil {
-			return projectChanged, err
+			return filesChanged, err
 		}
 
 		if changed {
-			projectChanged = true
+			filesChanged = append(filesChanged, file)
 		}
 	}
 
-	return projectChanged, nil
+	return filesChanged, nil
 }
 
 func (s FilewatcherService) hasFileChanged(filename string) (bool, error) {

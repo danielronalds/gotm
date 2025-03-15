@@ -11,29 +11,31 @@ import (
 
 // Repository for handling filesystem operations
 type FilesystemRepository struct {
-	root string
+	ignoredDirs map[string]bool
 }
 
-func NewFilesystemRepository() (FilesystemRepository, error) {
-	root, err := findProjectRoot(".")
-	if err != nil {
-		return FilesystemRepository{}, err
+func NewFilesystemRepository(dirsToIgnore []string) FilesystemRepository {
+	ignoredDirs := make(map[string]bool, 0)
+	for _, dir := range dirsToIgnore {
+		ignoredDirs[dir] = true
 	}
-	return FilesystemRepository{root}, nil
+
+	return FilesystemRepository{ignoredDirs}
 }
 
 // Recursive algorithim to find the root directory of the project, in order to set the programs context
 //
 // Note: the project root is considred the first parent directory to contain `main.go`
-func findProjectRoot(startDir string) (string, error) {
+func findProjectRoot(startDir string) string {
 	entries, err := os.ReadDir(startDir)
 	if err != nil {
-		return "", errors.New("unable to locate project root, are you sure you're in a GOTM project?")
+		fmt.Fprintln(os.Stderr, "unable to locate project root, are you sure you're in a GOTM project?")
+		os.Exit(1)
 	}
 
 	for _, entry := range entries {
 		if entry.Name() == "main.go" {
-			return startDir, nil
+			return startDir
 		}
 	}
 
@@ -41,11 +43,11 @@ func findProjectRoot(startDir string) (string, error) {
 }
 
 func (r FilesystemRepository) Root() string {
-	return r.root
+	return findProjectRoot(".")
 }
 
 func (r FilesystemRepository) FromRoot(path string) string {
-	return fmt.Sprintf("%v/%v", r.root, strings.TrimPrefix(path, "/"))
+	return fmt.Sprintf("%v/%v", findProjectRoot("."), strings.TrimPrefix(path, "/"))
 }
 
 func (r FilesystemRepository) HasDirectoryOrFile(directory string) (bool, error) {
@@ -62,11 +64,21 @@ func (r FilesystemRepository) HasDirectoryOrFile(directory string) (bool, error)
 	return false, err
 }
 
+func (r FilesystemRepository) isIgnoredDir(dir string) bool {
+	for ignoredDir := range r.ignoredDirs {
+		if strings.Contains(dir, ignoredDir) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (r FilesystemRepository) ReadDirRecursive(directory string) ([]string, error) {
 	files := make([]string, 0)
 
 	err := filepath.WalkDir(directory, func(path string, d fs.DirEntry, err error) error {
-		if !d.IsDir() && !strings.Contains(d.Name(), "node_modules") {
+		if !d.IsDir() && !r.isIgnoredDir(d.Name()) {
 			files = append(files, path)
 		}
 		return nil

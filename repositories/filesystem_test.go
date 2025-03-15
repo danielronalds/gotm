@@ -40,7 +40,7 @@ func TestHasDirectoryOrFileReturnsTrueIfDirectoryExists(t *testing.T) {
 	// Arrange
 	mkdir(TEST_DIR, t)
 	defer delete(TEST_DIR, t)
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	hasDir, err := filesystem.HasDirectoryOrFile(TEST_DIR)
@@ -56,7 +56,7 @@ func TestHasDirectoryOrFileReturnsTrueIfDirectoryExists(t *testing.T) {
 
 func TestHasDirectoryOrFileReturnsFalseIfDirectoryDoesntExists(t *testing.T) {
 	// Arrange
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	hasDir, err := filesystem.HasDirectoryOrFile("non-existent")
@@ -80,7 +80,7 @@ func TestReadDirRecursive(t *testing.T) {
 	createFile("testdir/nested/test.txt", "mock-content", t)
 	mkdir("testdir/nested/verynested", t)
 	createFile("testdir/nested/verynested/test.txt", "mock-content", t)
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	files, err := filesystem.ReadDirRecursive("testdir")
@@ -107,7 +107,7 @@ func TestReadFileWorks(t *testing.T) {
 	filecontent := "mock-content"
 	createFile(filename, filecontent, t)
 	defer delete(filename, t)
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	content, err := filesystem.ReadFile(filename)
@@ -123,7 +123,7 @@ func TestReadFileWorks(t *testing.T) {
 
 func TestCreateDirectoryWorks(t *testing.T) {
 	// Arrange
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	if err := filesystem.CreateDirectory(TEST_DIR); err != nil {
@@ -140,7 +140,7 @@ func TestCreateDirectoryWorks(t *testing.T) {
 func TestCreateDirCreatesRequiredParentDirectories(t *testing.T) {
 	// Arrange
 	SECOND_DIR := fmt.Sprintf("%v/test", TEST_DIR)
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	if err := filesystem.CreateDirectory(SECOND_DIR); err != nil {
@@ -156,7 +156,7 @@ func TestCreateDirCreatesRequiredParentDirectories(t *testing.T) {
 
 func TestCreateDirectoryReturnsExpectedErrorIfFileExists(t *testing.T) {
 	// Arrange
-	filesystem, _ := NewFilesystemRepository()
+	filesystem := NewFilesystemRepository([]string{})
 
 	// Act
 	if err := filesystem.CreateDirectory(TEST_DIR); err != nil {

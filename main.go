@@ -17,11 +17,7 @@ type Controller interface {
 func run(args []string) {
 	templates := r.NewTemplatesRepository()
 	shell := r.NewShellRepository()
-	filesystem, err := r.NewFilesystemRepository()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "\n%v\n", err.Error())
-		os.Exit(1)
-	}
+	filesystem := r.NewFilesystemRepository([]string{".git", "nodemodules"})
 
 	initService := s.NewInitialiserService(filesystem, templates)
 	componentService := s.NewComponentService(filesystem, templates)

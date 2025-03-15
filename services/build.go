@@ -37,15 +37,19 @@ func (s BuildService) buildFrontend() error {
 	return s.shell.RunCmdWithPipedOutput(s.filesystem.FromRoot("frontend"), "npm", "run", "build")
 }
 
-func (s BuildService) BuildDev() error {
+func (s BuildService) BuildDev(frontend, backend bool) error {
 	// Building go project
-	if err := s.buildGoBin(DEV_BULID_GO_BIN); err != nil {
-		return fmt.Errorf("unable to build go binary: %v", err)
+	if backend {
+		if err := s.buildGoBin(DEV_BULID_GO_BIN); err != nil {
+			return fmt.Errorf("unable to build go binary: %v", err)
+		}
 	}
 
 	// Building frontend
-	if err := s.buildFrontend(); err != nil {
-		return fmt.Errorf("unable to build frontend: %v", err)
+	if frontend {
+		if err := s.buildFrontend(); err != nil {
+			return fmt.Errorf("unable to build frontend: %v", err)
+		}
 	}
 
 	return nil
