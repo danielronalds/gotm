@@ -10,6 +10,7 @@ type ComponentGenerator interface {
 	GenerateController(name string) error
 	GenerateService(name string) error
 	GenerateRepository(name string) error
+	GenerateMiddleware(name string) error
 	GenerateModel(name string) error
 	GenerateView(name string) error
 }
@@ -25,6 +26,7 @@ func NewAddController(generator ComponentGenerator) AddController {
 		"controller": generator.GenerateController,
 		"service":    generator.GenerateService,
 		"repository": generator.GenerateRepository,
+		"middleware": generator.GenerateMiddleware,
 		"model":      generator.GenerateModel,
 		"view":       generator.GenerateView,
 	}

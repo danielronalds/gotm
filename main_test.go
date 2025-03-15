@@ -106,10 +106,10 @@ func TestRunWithAddCmd(t *testing.T) {
 		expectedFile string
 		cleanup      string
 	}{
-		// args, expected generated file
 		{args: []string{"add", "controller", "vehicle"}, expectedFile: "controllers/vehicle.go", cleanup: "controllers/vehicle.go"},
 		{args: []string{"add", "service", "vehicle"}, expectedFile: "services/vehicle.go", cleanup: "services/vehicle.go"},
 		{args: []string{"add", "repository", "vehicle"}, expectedFile: "repositories/vehicle.go", cleanup: "repositories/vehicle.go"},
+		{args: []string{"add", "middleware", "auth"}, expectedFile: "middleware/auth.go", cleanup: "middleware"},
 		{args: []string{"add", "model", "vehicle"}, expectedFile: "frontend/src/models/vehicle.ts", cleanup: "frontend"},
 		{args: []string{"add", "view", "vehicle"}, expectedFile: "frontend/src/views/vehicle.ts", cleanup: "frontend"},
 	}
@@ -118,6 +118,7 @@ func TestRunWithAddCmd(t *testing.T) {
 
 		// Act
 		run(input.args)
+		defer delete(input.cleanup)
 
 		// Assert
 		if _, err := os.Stat(input.expectedFile); err != nil {
@@ -126,11 +127,8 @@ func TestRunWithAddCmd(t *testing.T) {
 
 		bytes, err := os.ReadFile(input.expectedFile)
 		if err != nil {
-			delete(input.cleanup)
 			panic(err)
 		}
-
-		delete(input.cleanup)
 
 		if string(bytes) == "" {
 			t.Fatalf("%v did not have any contents", input.expectedFile)

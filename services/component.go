@@ -8,6 +8,7 @@ import (
 const CONTROLLERS_DIR string = "controllers"
 const SERVICES_DIR string = "services"
 const REPOSITORIES_DIR string = "repositories"
+const MIDDLEWARE_DIR string = "middleware"
 const MODELS_DIR string = "frontend/src/models"
 const VIEWS_DIR string = "frontend/src/views"
 
@@ -39,6 +40,10 @@ func (s ComponentService) GenerateService(name string) error {
 
 func (s ComponentService) GenerateRepository(name string) error {
 	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), ".go", "repository.go.tmpl")
+}
+
+func (s ComponentService) GenerateMiddleware(name string) error {
+	return s.generateComponent(name, "middleware", s.filesystem.FromRoot(MIDDLEWARE_DIR), ".go", "middleware.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {

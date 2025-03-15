@@ -1,0 +1,15 @@
+package middleware
+
+import "net/http"
+
+type {{ .Name }}Middleware struct{}
+
+func New{{ .Name }}Middlware() {{ .Name }}Middleware {
+	return {{ .Name }}Middleware{}
+}
+
+func (m {{ .Name }}Middleware) {{ .Name }}(next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        next(w, r)
+    })
+}
