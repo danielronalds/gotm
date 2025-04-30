@@ -2,18 +2,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	c "github.com/{{ .GithubUsername }}/{{ .ProjectName }}/controllers"
 )
+
+type Controller interface {
+	RegisterRoutes(mux *http.ServeMux)
+}
 
 func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/", http.FileServer(http.Dir("./frontend")))
 
-	helloController := c.NewHelloController(mux)
-	helloController.Init()
+	controllers := []Controller{
+		c.NewHelloController(),
+	}
+
+	for _, controller := range controllers {
+		controller.RegisterRoutes(mux)
+	}
 
 	port := ":3000"
 

@@ -6,16 +6,14 @@ import (
 	"net/http"
 )
 
-type HelloController struct {
-	mux *http.ServeMux
+type HelloController struct{}
+
+func NewHelloController() HelloController {
+	return HelloController{}
 }
 
-func NewHelloController(mux *http.ServeMux) HelloController {
-	return HelloController{mux}
-}
-
-func (c HelloController) Init() {
-	c.mux.HandleFunc("GET /api/hello", c.HandleGetHello)
+func (c HelloController) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/hello", c.handleGetHello)
 }
 
 func (c HelloController) HandleGetHello(w http.ResponseWriter, r *http.Request) {
