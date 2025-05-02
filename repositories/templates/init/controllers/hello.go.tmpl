@@ -16,7 +16,7 @@ func (c HelloController) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/hello", c.handleGetHello)
 }
 
-func (c HelloController) HandleGetHello(w http.ResponseWriter, r *http.Request) {
+func (c HelloController) handleGetHello(w http.ResponseWriter, r *http.Request) {
 	response := struct {
 		Message string `json:"message"`
 	}{Message: "Hello from the server!"}
