@@ -36,6 +36,7 @@ func TestRunWithNewCmd(t *testing.T) {
 		"testproject/frontend/global.css",
 		"testproject/frontend/index.html",
 		"testproject/frontend/package.json",
+		"testproject/frontend/package-lock.json",
 		"testproject/frontend/tailwind.config.js",
 		"testproject/frontend/tsconfig.json",
 		"testproject/frontend/src/index.ts",

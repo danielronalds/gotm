@@ -63,6 +63,7 @@ func (s InitialiserService) InitProject(username, projectName, projectDir string
 		"frontend/global.css",
 		"frontend/index.html",
 		"frontend/package.json",
+		"frontend/package-lock.json",
 		"frontend/tailwind.config.js",
 		"frontend/tsconfig.json",
 		"frontend/src/index.ts",
