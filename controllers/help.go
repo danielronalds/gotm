@@ -25,6 +25,7 @@ Commands
   init        Creates a new project with the passed in name, in the current directory
   install     Installs project dependencies
   add         Adds a component to the project [controller, service, repository, view, model]
+  npm         Convenience command for running npm in the frontend folder
   watch       Watches for file changes, rebuilding the project when required
   help        Show this menu
 `

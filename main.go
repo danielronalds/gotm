@@ -24,6 +24,7 @@ func run(args []string) {
 	buildService := s.NewBuildService(filesystem, shell)
 	filewatcherService := s.NewFilewatcherService(filesystem)
 	runnerService := s.NewRunnerService(filesystem)
+	npmService := s.NewNpmService(filesystem, shell)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -36,6 +37,7 @@ func run(args []string) {
 		"install": c.NewInstallController(buildService),
 		"add":     c.NewAddController(componentService),
 		"watch":   c.NewWatchController(filewatcherService, buildService, &runnerService, filesystem),
+		"npm":     c.NewNpmController(npmService),
 	}
 	controller, ok := controllerMap[cmd]
 	if !ok {
