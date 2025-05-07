@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -94,6 +95,28 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 		componentName = name
 	}
 	if err := s.templates.WriteTemplate(file, templateName, struct{ Name string }{Name: componentName}); err != nil {
+		return fmt.Errorf("unable to write template: %v", err.Error())
+	}
+
+	return nil
+}
+
+func (s ComponentService) GenerateDockerfile() error {
+	hasFile, err := s.filesystem.HasDirectoryOrFile(s.filesystem.FromRoot("Dockerfile"))
+	if err != nil {
+		return fmt.Errorf("unable to check if Dockerfile already exists: %v",  err.Error())
+	}
+	if hasFile {
+		return errors.New("Dockerfile already exists")
+	}
+
+	file, err := s.filesystem.CreateFile(s.filesystem.FromRoot("Dockerfile"))
+	if err != nil {
+		return fmt.Errorf("unable to create dockerfile: %v", err.Error())
+	}
+	defer file.Close()
+
+	if err := s.templates.WriteTemplate(file, "Dockerfile.tmpl", nil); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
 

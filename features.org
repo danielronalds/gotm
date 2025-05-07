@@ -1,6 +1,6 @@
 #+title: Features
 
-* ~dockerfile~ component type to ~add~ command
+* DONE ~dockerfile~ component type to ~add~ command
 
 + Default Dockerfile implementation
 + Should check if one already exists and output error if so
@@ -12,7 +12,7 @@ Dockerfile should be semi-optimized
   + Two builders, one for frontend and one for backend
 + optimised for caching, e.g. package*.json files loaded and npm install first for fast rebuilds
 
-* ~db~ command
+* TODO ~db~ command
 
 Handles everything to do with adding a database to the project
 
@@ -22,19 +22,19 @@ Database will handle using `sqlite`
 
 It will have several subcommands (likely implemented as separate controllers?)
 
-** ~init~
+** TODO ~init~
 
 + Install sqlite3 driver in go project (Probably via running the command)
 + Creates ~repositories/sqlite.go~ (Fails if exists) containing ~SqliteRepository~ struct
 + Default implementation for an sqlite database (including some kind of migration manager?)
   + Might need to program a simple one?
 
-** ~add~
+** TODO ~add~
 
 + Similar to ~gotm add~ command
 + Allows the user to expand the database
 
-*** ~table~
+*** TODO ~table~
 
 Adds a table with the given fields to the database
 
@@ -49,7 +49,7 @@ Maybe, depending on file structure within the repository, a check is done to see
 Example: ~gotm db add table users --fields username=string password_hash=string created_at=int updated_at=int~
     
 
-*** ~migration~
+*** TODO ~migration~
 
 Just creates a migration file in the correct spot and with the correct timestamp
 

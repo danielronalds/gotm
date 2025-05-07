@@ -6,36 +6,52 @@ import (
 	"strings"
 )
 
-type ComponentGenerator interface {
+type componentGenerator interface {
 	GenerateController(name string) error
 	GenerateService(name string) error
 	GenerateRepository(name string) error
 	GenerateMiddleware(name string) error
 	GenerateModel(name string) error
 	GenerateView(name string) error
+	GenerateDockerfile() error
 }
 
-type Generator = func(name string) error
+type generator = func(name string) error
+type dockerfileGenerator = func() error
 
 type AddController struct {
-	generatorMap map[string]Generator
+	generatorMap    map[string]generator
+	dockerGenerator dockerfileGenerator
 }
 
-func NewAddController(generator ComponentGenerator) AddController {
-	generatorMap := map[string]Generator{
-		"controller": generator.GenerateController,
-		"service":    generator.GenerateService,
-		"repository": generator.GenerateRepository,
-		"middleware": generator.GenerateMiddleware,
-		"model":      generator.GenerateModel,
-		"view":       generator.GenerateView,
+func NewAddController(gen componentGenerator) AddController {
+	generatorMap := map[string]generator{
+		"controller": gen.GenerateController,
+		"service":    gen.GenerateService,
+		"repository": gen.GenerateRepository,
+		"middleware": gen.GenerateMiddleware,
+		"model":      gen.GenerateModel,
+		"view":       gen.GenerateView,
 	}
-	return AddController{generatorMap}
+
+	dockerGenerator := gen.GenerateDockerfile
+
+	return AddController{generatorMap, dockerGenerator}
 }
 
 func (c AddController) Handle(args []string) error {
 	if len(args) == 0 || args[0] != "add" {
 		return errors.New("passed to incorrect controller! Passed to `add` controller")
+	}
+
+	// Handling special case of the dockerfile, no named part of the component so only 2 args
+	if len(args) == 2 && args[1] == "dockerfile" {
+		if err := c.dockerGenerator(); err != nil {
+			return fmt.Errorf("failed to generate dockerfile: %v", err.Error())
+		}
+
+		fmt.Println("Added Dockerfile")
+		return nil
 	}
 
 	if len(args) < 3 || args[1] == "" || args[2] == "" {
@@ -45,12 +61,12 @@ func (c AddController) Handle(args []string) error {
 	componentType := strings.ToLower(args[1])
 	componentName := args[2]
 
-	generator, ok := c.generatorMap[componentType]
+	gen, ok := c.generatorMap[componentType]
 	if !ok {
 		return fmt.Errorf("\"%v\" is not a valid component", componentType)
 	}
 
-	if err := generator(componentName); err != nil {
+	if err := gen(componentName); err != nil {
 		return fmt.Errorf("failed to generate %v component: %v", componentType, err.Error())
 	}
 
