@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-type ProjectInitialiser interface {
+type projectInitialiser interface {
 	InitProject(username, projectName, projectDir string) error
 }
 
 type NewController struct {
-	initialiser ProjectInitialiser
+	initialiser projectInitialiser
 	filesystem  FilesystemRoot
 }
 
-func NewNewController(initialiser ProjectInitialiser, filesystem FilesystemRoot) NewController {
+func NewNewController(initialiser projectInitialiser, filesystem FilesystemRoot) NewController {
 	return NewController{initialiser, filesystem}
 }
 

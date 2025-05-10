@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-type CmdRunner interface {
+type cmdRunner interface {
 	RunCmdWithPipedOutput(dir, program string, args ...string) error
 }
 
@@ -18,7 +18,7 @@ type FileReader interface {
 }
 
 type DirReader interface {
-	HasDirectoryOrFile(directory string) (bool, error)
+	HasDirectoryOrFile(name string) (bool, error)
 	ReadDirRecursive(directory string) ([]string, error)
 }
 

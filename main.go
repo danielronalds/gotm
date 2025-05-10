@@ -25,6 +25,7 @@ func run(args []string) {
 	filewatcherService := s.NewFilewatcherService(filesystem)
 	runnerService := s.NewRunnerService(filesystem)
 	npmService := s.NewNpmService(filesystem, shell)
+	sqliteService := s.NewSqliteService(filesystem, shell, templates)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -36,6 +37,7 @@ func run(args []string) {
 		"init":    c.NewInitController(initService),
 		"install": c.NewInstallController(buildService),
 		"add":     c.NewAddController(componentService),
+		"db":      c.NewDbController(sqliteService),
 		"watch":   c.NewWatchController(filewatcherService, buildService, &runnerService, filesystem),
 		"npm":     c.NewNpmController(npmService),
 	}
@@ -45,7 +47,7 @@ func run(args []string) {
 	}
 
 	if err := controller.Handle(args); err != nil {
-		fmt.Fprintf(os.Stderr, "\n%v\n", err.Error())
+		fmt.Fprintf(os.Stderr, "%v\n", err.Error())
 		os.Exit(1)
 	}
 }
