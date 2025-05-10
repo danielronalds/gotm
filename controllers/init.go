@@ -7,10 +7,10 @@ import (
 )
 
 type InitController struct {
-	initialiser ProjectInitialiser
+	initialiser projectInitialiser
 }
 
-func NewInitController(initialiser ProjectInitialiser) InitController {
+func NewInitController(initialiser projectInitialiser) InitController {
 	return InitController{initialiser}
 }
 

@@ -14,10 +14,10 @@ type BuildServiceFilesystem interface {
 
 type BuildService struct {
 	filesystem BuildServiceFilesystem
-	shell      CmdRunner
+	shell      cmdRunner
 }
 
-func NewBuildService(filesystem BuildServiceFilesystem, shell CmdRunner) BuildService {
+func NewBuildService(filesystem BuildServiceFilesystem, shell cmdRunner) BuildService {
 	return BuildService{filesystem, shell}
 }
 

@@ -2,10 +2,10 @@ package services
 
 type NpmService struct {
 	filesystem ProjectRoot
-	shell      CmdRunner
+	shell      cmdRunner
 }
 
-func NewNpmService(filesystem ProjectRoot, shell CmdRunner) NpmService {
+func NewNpmService(filesystem ProjectRoot, shell cmdRunner) NpmService {
 	return NpmService{filesystem, shell}
 }
 
