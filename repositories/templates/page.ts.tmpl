@@ -1,0 +1,15 @@
+import m from "mithril";
+
+const {{ .Name }}Page: m.ClosureComponent = () => {
+  const message = "Hello, world!";
+
+  return {
+    view: (vn) => {
+      return m("div", {}, [
+        m("p", {}, message)
+      ]);
+    },
+  };
+};
+
+export default {{ .Name }}Page;

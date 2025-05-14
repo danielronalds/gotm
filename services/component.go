@@ -12,6 +12,7 @@ const REPOSITORIES_DIR string = "repositories"
 const MIDDLEWARE_DIR string = "middleware"
 const MODELS_DIR string = "frontend/src/models"
 const VIEWS_DIR string = "frontend/src/views"
+const PAGES_DIR string = "frontend/src/views/pages"
 
 const VIEW_COMPONENT_TYPE = "view"
 
@@ -32,33 +33,44 @@ func NewComponentService(filesystem ComponentServiceFilesystem, templates Templa
 }
 
 func (s ComponentService) GenerateController(name string) error {
-	return s.generateComponent(name, "controller", s.filesystem.FromRoot(CONTROLLERS_DIR), ".go", "controller.go.tmpl")
+	filename := fmt.Sprintf("%v.go", name)
+	return s.generateComponent(name, "controller", s.filesystem.FromRoot(CONTROLLERS_DIR), filename, "controller.go.tmpl")
 }
 
 func (s ComponentService) GenerateService(name string) error {
-	return s.generateComponent(name, "service", s.filesystem.FromRoot(SERVICES_DIR), ".go", "service.go.tmpl")
+	filename := fmt.Sprintf("%v.go", name)
+	return s.generateComponent(name, "service", s.filesystem.FromRoot(SERVICES_DIR), filename, "service.go.tmpl")
 }
 
 func (s ComponentService) GenerateRepository(name string) error {
-	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), ".go", "repository.go.tmpl")
+	filename := fmt.Sprintf("%v.go", name)
+	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), filename, "repository.go.tmpl")
 }
 
 func (s ComponentService) GenerateMiddleware(name string) error {
-	return s.generateComponent(name, "middleware", s.filesystem.FromRoot(MIDDLEWARE_DIR), ".go", "middleware.go.tmpl")
+	filename := fmt.Sprintf("%v.go", name)
+	return s.generateComponent(name, "middleware", s.filesystem.FromRoot(MIDDLEWARE_DIR), filename, "middleware.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
-	return s.generateComponent(name, "model", s.filesystem.FromRoot(MODELS_DIR), ".ts", "model.ts.tmpl")
+	filename := fmt.Sprintf("%v.ts", name)
+	return s.generateComponent(name, "model", s.filesystem.FromRoot(MODELS_DIR), filename, "model.ts.tmpl")
 }
 
 func (s ComponentService) GenerateView(name string) error {
-	return s.generateComponent(name, VIEW_COMPONENT_TYPE, s.filesystem.FromRoot(VIEWS_DIR), ".ts", "view.ts.tmpl")
+	filename := fmt.Sprintf("%v.ts", name)
+	return s.generateComponent(name, VIEW_COMPONENT_TYPE, s.filesystem.FromRoot(VIEWS_DIR), filename, "view.ts.tmpl")
+}
+
+func (s ComponentService) GeneratePage(name string) error {
+	filename := fmt.Sprintf("%vPage.ts", toSentenceCase(name))
+	return s.generateComponent(name, "page", s.filesystem.FromRoot(PAGES_DIR), filename, "page.ts.tmpl")
 }
 
 // general method for dealing with the logic of generating a component.
 //
 // `fileExtension` should include the dot, i.e. ".go"
-func (s ComponentService) generateComponent(name, componentType, componentDir, fileExtension, templateName string) error {
+func (s ComponentService) generateComponent(name, componentType, componentDir, filename, templateName string) error {
 	hasDir, err := s.filesystem.HasDirectoryOrFile(componentDir)
 	if err != nil {
 		return fmt.Errorf("unable to check if %v directory exists: %v", componentDir, err.Error())
@@ -70,11 +82,7 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 		}
 	}
 
-	filename := strings.ToLower(name)
-	if componentType == VIEW_COMPONENT_TYPE {
-		filename = name // Views have capatilised names, rather than enforced lowercase
-	}
-	componentFilepath := fmt.Sprintf("%v/%v%v", componentDir, filename, fileExtension)
+	componentFilepath := fmt.Sprintf("%v/%v", componentDir, filename)
 
 	hasFile, err := s.filesystem.HasDirectoryOrFile(componentFilepath)
 	if err != nil {
@@ -104,7 +112,7 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 func (s ComponentService) GenerateDockerfile() error {
 	hasFile, err := s.filesystem.HasDirectoryOrFile(s.filesystem.FromRoot("Dockerfile"))
 	if err != nil {
-		return fmt.Errorf("unable to check if Dockerfile already exists: %v",  err.Error())
+		return fmt.Errorf("unable to check if Dockerfile already exists: %v", err.Error())
 	}
 	if hasFile {
 		return errors.New("Dockerfile already exists")

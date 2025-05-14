@@ -13,6 +13,7 @@ type componentGenerator interface {
 	GenerateMiddleware(name string) error
 	GenerateModel(name string) error
 	GenerateView(name string) error
+	GeneratePage(name string) error
 	GenerateDockerfile() error
 }
 
@@ -32,6 +33,7 @@ func NewAddController(gen componentGenerator) AddController {
 		"middleware": gen.GenerateMiddleware,
 		"model":      gen.GenerateModel,
 		"view":       gen.GenerateView,
+		"page":       gen.GeneratePage,
 	}
 
 	dockerGenerator := gen.GenerateDockerfile
