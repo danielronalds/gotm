@@ -69,10 +69,12 @@ func (c WatchController) Handle(args []string) error {
 		}
 
 		if len(filesChanged) != 0 {
-			fmt.Println("\nDetected changes, rebuilding project")
-
 			buildFrontend := anyMatchRegex(filesChanged, `.*\.(js|ts)$`)
 			buildBackend := anyMatchRegex(filesChanged, `.*\.go$`)
+
+			if buildFrontend || buildBackend {
+				fmt.Println("\nDetected changes, rebuilding project")
+			}
 
 			if err := c.builder.BuildDev(buildFrontend, buildBackend); err != nil {
 				fmt.Fprintf(os.Stderr, "failed to build project:\n %v", err.Error())
