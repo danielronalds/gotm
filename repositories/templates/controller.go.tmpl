@@ -13,7 +13,7 @@ func New{{ .Name }}Controller() {{ .Name }}Controller {
 }
 
 func (c {{ .Name }}Controller) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /{{ .Name }}/hello", c.HandleGetHello)
+	mux.HandleFunc("GET /{{ .LowerCaseName }}/hello", c.HandleGetHello)
 }
 
 func (c {{ .Name }}Controller) HandleGetHello(w http.ResponseWriter, r *http.Request) {

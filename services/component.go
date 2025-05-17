@@ -102,7 +102,10 @@ func (s ComponentService) generateComponent(name, componentType, componentDir, f
 	if componentType == VIEW_COMPONENT_TYPE {
 		componentName = name
 	}
-	if err := s.templates.WriteTemplate(file, templateName, struct{ Name string }{Name: componentName}); err != nil {
+	if err := s.templates.WriteTemplate(file, templateName, struct {
+		Name          string
+		LowerCaseName string
+	}{Name: componentName, LowerCaseName: strings.ToLower(componentName)}); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
 
