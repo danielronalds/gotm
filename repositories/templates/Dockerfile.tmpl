@@ -17,7 +17,7 @@ COPY controllers/ ./controllers/
 COPY services*/ ./services/
 COPY repositories*/ ./repositories/
 COPY main.go .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-extldflags '-static'" -o main .
+RUN CGO_ENABLED=1 GOOS=linux go build -a -ldflags="-extldflags '-static'" -o main .
 
 # Building Runner
 FROM scratch AS runner
