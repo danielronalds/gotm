@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 )
 
 const CONTROLLERS_DIR string = "controllers"
 const SERVICES_DIR string = "services"
 const REPOSITORIES_DIR string = "repositories"
+const MIGRATION_DIR string = "migrations"
 const MODELS_DIR string = "frontend/src/models"
 const VIEWS_DIR string = "frontend/src/views"
 const PAGES_DIR string = "frontend/src/views/pages"
@@ -44,6 +46,14 @@ func (s ComponentService) GenerateService(name string) error {
 func (s ComponentService) GenerateRepository(name string) error {
 	filename := fmt.Sprintf("%v.go", name)
 	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), filename, "repository.go.tmpl")
+}
+
+func (s ComponentService) GenerateMigration(name string) error {
+	// Generating timestamp that matches how goose generates timestamps
+	timestamp := time.Now().UTC().Format("20060102150405")
+
+	filename := fmt.Sprintf("%v_%v.sql", timestamp, name)
+	return s.generateComponent(name, "migration", s.filesystem.FromRoot(MIGRATION_DIR), filename, "migration.sql.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
