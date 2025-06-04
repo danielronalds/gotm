@@ -9,7 +9,6 @@ import (
 const CONTROLLERS_DIR string = "controllers"
 const SERVICES_DIR string = "services"
 const REPOSITORIES_DIR string = "repositories"
-const MIDDLEWARE_DIR string = "middleware"
 const MODELS_DIR string = "frontend/src/models"
 const VIEWS_DIR string = "frontend/src/views"
 const PAGES_DIR string = "frontend/src/views/pages"
@@ -45,11 +44,6 @@ func (s ComponentService) GenerateService(name string) error {
 func (s ComponentService) GenerateRepository(name string) error {
 	filename := fmt.Sprintf("%v.go", name)
 	return s.generateComponent(name, "repository", s.filesystem.FromRoot(REPOSITORIES_DIR), filename, "repository.go.tmpl")
-}
-
-func (s ComponentService) GenerateMiddleware(name string) error {
-	filename := fmt.Sprintf("%v.go", name)
-	return s.generateComponent(name, "middleware", s.filesystem.FromRoot(MIDDLEWARE_DIR), filename, "middleware.go.tmpl")
 }
 
 func (s ComponentService) GenerateModel(name string) error {
