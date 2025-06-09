@@ -139,6 +139,28 @@ func (s ComponentService) GenerateDockerfile() error {
 	return nil
 }
 
+func (s ComponentService) GenerateSqlcConfigIfNotExists() (bool, error) {
+	hasFile, err := s.filesystem.HasDirectoryOrFile(s.filesystem.FromRoot("sqlc.yml"))
+	if err != nil {
+		return false, fmt.Errorf("unable to check if sqlc.yml already exists: %v", err.Error())
+	}
+	if hasFile {
+		return false, nil
+	}
+
+	file, err := s.filesystem.CreateFile(s.filesystem.FromRoot("sqlc.yml"))
+	if err != nil {
+		return false, fmt.Errorf("unable to create sqlc.yml: %v", err.Error())
+	}
+	defer file.Close()
+
+	if err := s.templates.WriteTemplate(file, "sqlc.yml.tmpl", nil); err != nil {
+		return false, fmt.Errorf("unable to write template: %v", err.Error())
+	}
+
+	return true, nil
+}
+
 type columnName = string
 type columnType = string
 type columns = map[columnName]columnType

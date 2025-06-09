@@ -3,11 +3,13 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
 type columnName = string
 type columnType = string
+type columns = map[columnName]columnType
 
 type componentGenerator interface {
 	GenerateController(name string) error
@@ -18,24 +20,32 @@ type componentGenerator interface {
 	GenerateView(name string) error
 	GeneratePage(name string) error
 	GenerateDockerfile() error
-	GenerateTable(name string, columns map[columnName]columnType) error
-	GenerateQueries(name string, columns map[columnName]columnType) error
+	GenerateSqlcConfigIfNotExists() (bool, error)
+	GenerateTable(name string, cols columns) error
+	GenerateQueries(name string, cols columns) error
 }
 
-type generator = func(name string) error
+type generatorFunc = func(name string) error
 type dockerGeneratorFunc = func() error
-type tableGeneratorFunc = func(name string, columns map[string]string) error
-type queryGeneratorFunc = func(name string, columns map[string]string) error
+type tableGeneratorFunc = func(name string, cols columns) error
+type queryGeneratorFunc = func(name string, cols columns) error
+type sqlcGeneratorFunc = func() (bool, error)
+
+type sqlcRunner interface {
+	RunSqlc() error
+}
 
 type AddController struct {
-	generatorMap    map[string]generator
+	generatorMap    map[string]generatorFunc
 	dockerGenerator dockerGeneratorFunc
-	tableGenerater  tableGeneratorFunc
-	queryGenerater  queryGeneratorFunc
+	tableGenerator  tableGeneratorFunc
+	queryGenerator  queryGeneratorFunc
+	sqlcGenerator   sqlcGeneratorFunc
+	sqlc            sqlcRunner
 }
 
-func NewAddController(gen componentGenerator) AddController {
-	generatorMap := map[string]generator{
+func NewAddController(gen componentGenerator, sqlc sqlcRunner) AddController {
+	generatorMap := map[string]generatorFunc{
 		"controller": gen.GenerateController,
 		"service":    gen.GenerateService,
 		"repository": gen.GenerateRepository,
@@ -48,8 +58,9 @@ func NewAddController(gen componentGenerator) AddController {
 	dockerGenerator := gen.GenerateDockerfile
 	tableGeneratorFunc := gen.GenerateTable
 	queryGeneraterFunc := gen.GenerateQueries
+	sqlcGeneratorFunc := gen.GenerateSqlcConfigIfNotExists
 
-	return AddController{generatorMap, dockerGenerator, tableGeneratorFunc, queryGeneraterFunc}
+	return AddController{generatorMap, dockerGenerator, tableGeneratorFunc, queryGeneraterFunc, sqlcGeneratorFunc, sqlc}
 }
 
 func (c AddController) Handle(args []string) error {
@@ -109,12 +120,24 @@ func (c AddController) handleTable(args []string) error {
 		return fmt.Errorf("failed to parse columns: %v", err.Error())
 	}
 
-	if err := c.queryGenerater(tableName, columns); err != nil {
+	configCreated, err := c.sqlcGenerator()
+	if err != nil {
+		return fmt.Errorf("failed to generate sqlc config file: %v", err.Error())
+	}
+	if configCreated {
+		log.Println("created sqlc.yml")
+	}
+
+	if err := c.queryGenerator(tableName, columns); err != nil {
 		return fmt.Errorf("failed to generate queries: %v", err.Error())
 	}
 
-	if err := c.tableGenerater(tableName, columns); err != nil {
+	if err := c.tableGenerator(tableName, columns); err != nil {
 		return fmt.Errorf("failed to generate table: %v", err.Error())
+	}
+
+	if err := c.sqlc.RunSqlc(); err != nil {
+		return fmt.Errorf("failed to run sqlc: %v", err.Error())
 	}
 
 	fmt.Printf("Added \"%v\" table\n", tableName)

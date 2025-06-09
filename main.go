@@ -25,6 +25,7 @@ func run(args []string) {
 	filewatcherService := s.NewFilewatcherService(filesystem)
 	runnerService := s.NewRunnerService(filesystem)
 	npmService := s.NewNpmService(filesystem, shell)
+	sqlcService := s.NewSqlcService(filesystem, shell)
 
 	cmd := "help" // Default command is the help command
 	if len(args) != 0 {
@@ -35,7 +36,7 @@ func run(args []string) {
 		"new":     c.NewNewController(initService, filesystem),
 		"init":    c.NewInitController(initService),
 		"install": c.NewInstallController(buildService),
-		"add":     c.NewAddController(componentService),
+		"add":     c.NewAddController(componentService, sqlcService),
 		"watch":   c.NewWatchController(filewatcherService, buildService, &runnerService, filesystem),
 		"npm":     c.NewNpmController(npmService),
 	}
