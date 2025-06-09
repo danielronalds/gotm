@@ -1,0 +1,24 @@
+-- name: Get{{ .NameSentenceCase }}ById :one
+SELECT * FROM {{ .Name }}
+WHERE id = ? LIMIT 1;
+
+-- name: Get{{ .NameSentenceCase }}Slice :many
+SELECT * FROM {{ .Name }};
+
+-- name: Insert{{ .NameSentenceCase }} :one
+INSERT INTO {{ .Name }}
+(id, {{ range $name, $type := .Columns }}{{$name}}, {{ end }}updated_at, created_at)
+VALUES (NULL, {{ range $name, $type := .Columns }}{{$name}}, {{ end }}?, ?)
+RETURNING *;
+
+-- name: Update{{ .NameSentenceCase }}ById :one
+UPDATE {{ .Name }} SET
+{{ range $name, $type := .Columns }}{{$name}} = ?,
+{{end}}updated_at = ?
+WHERE id = ?
+RETURNING *;
+
+-- name: Delete{{ .NameSentenceCase }}ById :one
+DELETE FROM {{ .Name }}
+WHERE id = ?
+RETURNING *;

@@ -11,6 +11,7 @@ const CONTROLLERS_DIR string = "controllers"
 const SERVICES_DIR string = "services"
 const REPOSITORIES_DIR string = "repositories"
 const MIGRATION_DIR string = "migrations"
+const QUERY_DIR string = "queries"
 const MODELS_DIR string = "frontend/src/models"
 const VIEWS_DIR string = "frontend/src/views"
 const PAGES_DIR string = "frontend/src/views/pages"
@@ -71,7 +72,7 @@ func (s ComponentService) GeneratePage(name string) error {
 	return s.generateComponent(name, "page", s.filesystem.FromRoot(PAGES_DIR), filename, "page.ts.tmpl")
 }
 
-// general method for dealing with the logic of generating a component.
+// Utility function for dealing with the logic of generating a typical component.
 //
 // `fileExtension` should include the dot, i.e. ".go"
 func (s ComponentService) generateComponent(name, componentType, componentDir, filename, templateName string) error {
@@ -138,41 +139,64 @@ func (s ComponentService) GenerateDockerfile() error {
 	return nil
 }
 
-// Generates a migraton for creating a table with the given columns
-//
-// Columns should be a map with column names as the key and their type being the value
-func (s ComponentService) GenerateTable(name string, columns map[string]string) error {
-	tableTemplateData := struct {
-		Name    string
-		Columns map[string]string
-	}{Name: name, Columns: columns}
+type columnName = string
+type columnType = string
+type columns = map[columnName]columnType
+
+// type of data passed to a database specific template
+type databaseTemplateData struct {
+	Name             string
+	NameSentenceCase string
+	Columns          columns
+}
+
+func newDatabaseTemplateData(name string, cols columns) databaseTemplateData {
+	return databaseTemplateData{Name: name, NameSentenceCase: toSentenceCase(name), Columns: cols}
+}
+
+func (s ComponentService) GenerateTable(name string, cols columns) error {
+	tableTemplateData := newDatabaseTemplateData(name, cols)
 
 	// Opening tempate file and writing the file
 	timestamp := time.Now().UTC().Format("20060102150405")
 	filename := fmt.Sprintf("%v_add_%v_table.sql", timestamp, name)
 
-	hasDir, err := s.filesystem.HasDirectoryOrFile(MIGRATION_DIR)
+	return s.writeDatabaseTemplateFile(filename, "table.sql.tmpl", MIGRATION_DIR, tableTemplateData)
+}
+
+func (s ComponentService) GenerateQueries(name string, cols columns) error {
+	tableTemplateData := newDatabaseTemplateData(name, cols)
+
+	// Opening tempate file and writing the file
+	filename := fmt.Sprintf("%v.sql", name)
+
+	return s.writeDatabaseTemplateFile(filename, "queries.sql.tmpl", QUERY_DIR, tableTemplateData)
+}
+
+// Utility function for handling writing a databse related template file
+func (s ComponentService) writeDatabaseTemplateFile(filename, template, dir string, data databaseTemplateData) error {
+	hasDir, err := s.filesystem.HasDirectoryOrFile(dir)
 	if err != nil {
-		return fmt.Errorf("unable to check if %v directory exists: %v", MIGRATION_DIR, err.Error())
+		return fmt.Errorf("unable to check if %v directory exists: %v", dir, err.Error())
 	}
 
 	if !hasDir {
-		if err := s.filesystem.CreateDirectory(MIGRATION_DIR); err != nil {
-			return fmt.Errorf("unable to create %v directory: %v", MIGRATION_DIR, err.Error())
+		if err := s.filesystem.CreateDirectory(dir); err != nil {
+			return fmt.Errorf("unable to create %v directory: %v", dir, err.Error())
 		}
 	}
 
 	// No need to check if this is unique, as the filename contains a timestamp
-	migrationFilepath := fmt.Sprintf("%v/%v", MIGRATION_DIR, filename)
+	templateFilepath := fmt.Sprintf("%v/%v", dir, filename)
 
-	file, err := s.filesystem.CreateFile(migrationFilepath)
+	file, err := s.filesystem.CreateFile(templateFilepath)
 	if err != nil {
-		return fmt.Errorf("unable to create migraiton file: %v", err.Error())
+		return fmt.Errorf("unable to create template file: %v", err.Error())
 	}
 	defer file.Close()
 
 	// Writing to the file
-	if err := s.templates.WriteTemplate(file, "table.sql.tmpl", tableTemplateData); err != nil {
+	if err := s.templates.WriteTemplate(file, template, data); err != nil {
 		return fmt.Errorf("unable to write template: %v", err.Error())
 	}
 

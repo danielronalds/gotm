@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+type columnName = string
+type columnType = string
+
 type componentGenerator interface {
 	GenerateController(name string) error
 	GenerateService(name string) error
@@ -15,17 +18,20 @@ type componentGenerator interface {
 	GenerateView(name string) error
 	GeneratePage(name string) error
 	GenerateDockerfile() error
-	GenerateTable(name string, columns map[string]string) error
+	GenerateTable(name string, columns map[columnName]columnType) error
+	GenerateQueries(name string, columns map[columnName]columnType) error
 }
 
 type generator = func(name string) error
 type dockerGeneratorFunc = func() error
 type tableGeneratorFunc = func(name string, columns map[string]string) error
+type queryGeneratorFunc = func(name string, columns map[string]string) error
 
 type AddController struct {
 	generatorMap    map[string]generator
 	dockerGenerator dockerGeneratorFunc
 	tableGenerater  tableGeneratorFunc
+	queryGenerater  queryGeneratorFunc
 }
 
 func NewAddController(gen componentGenerator) AddController {
@@ -41,8 +47,9 @@ func NewAddController(gen componentGenerator) AddController {
 
 	dockerGenerator := gen.GenerateDockerfile
 	tableGeneratorFunc := gen.GenerateTable
+	queryGeneraterFunc := gen.GenerateQueries
 
-	return AddController{generatorMap, dockerGenerator, tableGeneratorFunc}
+	return AddController{generatorMap, dockerGenerator, tableGeneratorFunc, queryGeneraterFunc}
 }
 
 func (c AddController) Handle(args []string) error {
@@ -100,6 +107,10 @@ func (c AddController) handleTable(args []string) error {
 	columns, err := generateKeyValuePairs(keyValuePairs, "=")
 	if err != nil {
 		return fmt.Errorf("failed to parse columns: %v", err.Error())
+	}
+
+	if err := c.queryGenerater(tableName, columns); err != nil {
+		return fmt.Errorf("failed to generate queries: %v", err.Error())
 	}
 
 	if err := c.tableGenerater(tableName, columns); err != nil {
