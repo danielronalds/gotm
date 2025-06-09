@@ -15,14 +15,17 @@ type componentGenerator interface {
 	GenerateView(name string) error
 	GeneratePage(name string) error
 	GenerateDockerfile() error
+	GenerateTable(name string, cols []string) error
 }
 
 type generator = func(name string) error
-type dockerfileGenerator = func() error
+type dockerGeneratorFunc = func() error
+type tableGeneratorFunc = func(name string, cols []string) error
 
 type AddController struct {
 	generatorMap    map[string]generator
-	dockerGenerator dockerfileGenerator
+	dockerGenerator dockerGeneratorFunc
+	tableGenerater  tableGeneratorFunc
 }
 
 func NewAddController(gen componentGenerator) AddController {
@@ -37,8 +40,9 @@ func NewAddController(gen componentGenerator) AddController {
 	}
 
 	dockerGenerator := gen.GenerateDockerfile
+	tableGeneratorFunc := gen.GenerateTable
 
-	return AddController{generatorMap, dockerGenerator}
+	return AddController{generatorMap, dockerGenerator, tableGeneratorFunc}
 }
 
 func (c AddController) Handle(args []string) error {
@@ -48,20 +52,20 @@ func (c AddController) Handle(args []string) error {
 
 	// Handling special case of the dockerfile, no named part of the component so only 2 args
 	if len(args) == 2 && args[1] == "dockerfile" {
-		if err := c.dockerGenerator(); err != nil {
-			return fmt.Errorf("failed to generate dockerfile: %v", err.Error())
-		}
-
-		fmt.Println("Added Dockerfile")
-		return nil
+		return c.handleDockerFile()
 	}
 
+	// Handling special case of the table, as there are more than 3 args
 	if len(args) < 3 || args[1] == "" || args[2] == "" {
 		return errors.New("expected argument [component-type] [component-name]")
 	}
 
 	componentType := strings.ToLower(args[1])
 	componentName := args[2]
+
+	if componentType == "table" {
+		return c.handleTable(args)
+	}
 
 	gen, ok := c.generatorMap[componentType]
 	if !ok {
@@ -75,4 +79,30 @@ func (c AddController) Handle(args []string) error {
 	fmt.Printf("Added \"%v\" %v\n", componentName, componentType)
 
 	return nil
+}
+
+func (c AddController) handleDockerFile() error {
+	if err := c.dockerGenerator(); err != nil {
+		return fmt.Errorf("failed to generate dockerfile: %v", err.Error())
+	}
+
+	fmt.Println("Added Dockerfile")
+	return nil
+}
+
+func (c AddController) handleTable(args []string) error {
+	if len(args) < 4 {
+		return errors.New("no columns supplied")
+	}
+
+	tableName := args[2]
+	keyValuePairs := args[3:]
+
+	if err := c.tableGenerater(tableName, keyValuePairs); err != nil {
+		return fmt.Errorf("failed to generate table: %v", err.Error())
+	}
+
+	fmt.Printf("Added \"%v\" table\n", tableName)
+
+	return nil;
 }

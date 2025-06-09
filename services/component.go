@@ -138,6 +138,66 @@ func (s ComponentService) GenerateDockerfile() error {
 	return nil
 }
 
+// Function for creating a new table.
+//
+// Handles parsing the key value args, as well as writing the mgiration file to create the table
+func (s ComponentService) GenerateTable(name string, colsKeyValuePairs []string) error {
+	// Parsing command column key value pairs for passing to the template
+	colTypeMap := make(map[string]string, 0)
+
+	for _, col := range colsKeyValuePairs {
+		splitCol := strings.Split(col, "=")
+		if len(splitCol) != 2 {
+			return fmt.Errorf("incorrectly formated column: %v", splitCol)
+		}
+
+		colName := splitCol[0]
+		colType := splitCol[1]
+
+		_, ok := colTypeMap[colName]
+		if ok {
+			return fmt.Errorf("repeated column decleration: %v", colName)
+		}
+		colTypeMap[colName] = colType
+	}
+
+	tableTemplateData := struct {
+		Name string
+		Columns map[string]string
+	}{Name: name, Columns: colTypeMap}
+
+	// Opening tempate file and writing the file
+	timestamp := time.Now().UTC().Format("20060102150405")
+	filename := fmt.Sprintf("%v_add_%v_table.sql", timestamp, name)
+
+	hasDir, err := s.filesystem.HasDirectoryOrFile(MIGRATION_DIR)
+	if err != nil {
+		return fmt.Errorf("unable to check if %v directory exists: %v", MIGRATION_DIR, err.Error())
+	}
+
+	if !hasDir {
+		if err := s.filesystem.CreateDirectory(MIGRATION_DIR); err != nil {
+			return fmt.Errorf("unable to create %v directory: %v", MIGRATION_DIR, err.Error())
+		}
+	}
+
+	// No need to check if this is unique, as the filename contains a timestamp
+	migrationFilepath := fmt.Sprintf("%v/%v", MIGRATION_DIR, filename)
+
+	file, err := s.filesystem.CreateFile(migrationFilepath)
+	if err != nil {
+		return fmt.Errorf("unable to create migraiton file: %v", err.Error())
+	}
+	defer file.Close()
+
+	// Writing to the file
+	if err := s.templates.WriteTemplate(file, "table.sql.tmpl", tableTemplateData); err != nil {
+		return fmt.Errorf("unable to write template: %v", err.Error())
+	}
+
+	return nil
+}
+
 func toSentenceCase(s string) string {
 	firstLetter := strings.ToUpper(string(s[0]))
 	rest := strings.ToLower(s[1:])
