@@ -15,12 +15,12 @@ type componentGenerator interface {
 	GenerateView(name string) error
 	GeneratePage(name string) error
 	GenerateDockerfile() error
-	GenerateTable(name string, cols []string) error
+	GenerateTable(name string, columns map[string]string) error
 }
 
 type generator = func(name string) error
 type dockerGeneratorFunc = func() error
-type tableGeneratorFunc = func(name string, cols []string) error
+type tableGeneratorFunc = func(name string, columns map[string]string) error
 
 type AddController struct {
 	generatorMap    map[string]generator
@@ -97,12 +97,38 @@ func (c AddController) handleTable(args []string) error {
 
 	tableName := args[2]
 	keyValuePairs := args[3:]
+	columns, err := generateKeyValuePairs(keyValuePairs, "=")
+	if err != nil {
+		return fmt.Errorf("failed to parse columns: %v", err.Error())
+	}
 
-	if err := c.tableGenerater(tableName, keyValuePairs); err != nil {
+	if err := c.tableGenerater(tableName, columns); err != nil {
 		return fmt.Errorf("failed to generate table: %v", err.Error())
 	}
 
 	fmt.Printf("Added \"%v\" table\n", tableName)
 
-	return nil;
+	return nil
+}
+
+func generateKeyValuePairs(pairs []string, sep string) (map[string]string, error) {
+	keyValueMap := make(map[string]string, 0)
+
+	for _, pair := range pairs {
+		splitPair := strings.Split(pair, sep)
+		if len(splitPair) != 2 {
+			return keyValueMap, fmt.Errorf("incorrectly formated pair: %v", splitPair)
+		}
+
+		key := splitPair[0]
+		Value := splitPair[1]
+
+		_, ok := keyValueMap[key]
+		if ok {
+			return keyValueMap, fmt.Errorf("repeated pair decleration: %v", key)
+		}
+		keyValueMap[key] = Value
+	}
+
+	return keyValueMap, nil
 }

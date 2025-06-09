@@ -138,33 +138,14 @@ func (s ComponentService) GenerateDockerfile() error {
 	return nil
 }
 
-// Function for creating a new table.
+// Generates a migraton for creating a table with the given columns
 //
-// Handles parsing the key value args, as well as writing the mgiration file to create the table
-func (s ComponentService) GenerateTable(name string, colsKeyValuePairs []string) error {
-	// Parsing command column key value pairs for passing to the template
-	colTypeMap := make(map[string]string, 0)
-
-	for _, col := range colsKeyValuePairs {
-		splitCol := strings.Split(col, "=")
-		if len(splitCol) != 2 {
-			return fmt.Errorf("incorrectly formated column: %v", splitCol)
-		}
-
-		colName := splitCol[0]
-		colType := splitCol[1]
-
-		_, ok := colTypeMap[colName]
-		if ok {
-			return fmt.Errorf("repeated column decleration: %v", colName)
-		}
-		colTypeMap[colName] = colType
-	}
-
+// Columns should be a map with column names as the key and their type being the value
+func (s ComponentService) GenerateTable(name string, columns map[string]string) error {
 	tableTemplateData := struct {
-		Name string
+		Name    string
 		Columns map[string]string
-	}{Name: name, Columns: colTypeMap}
+	}{Name: name, Columns: columns}
 
 	// Opening tempate file and writing the file
 	timestamp := time.Now().UTC().Format("20060102150405")
