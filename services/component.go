@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 )
@@ -167,17 +168,36 @@ type columns = map[columnName]columnType
 
 // type of data passed to a database specific template
 type databaseTemplateData struct {
-	Name             string
-	NameSentenceCase string
-	Columns          columns
+	Name                  string
+	NameSentenceCase      string
+	Columns               columns
+	ColumnsUpperCaseTypes columns
 }
 
-func newDatabaseTemplateData(name string, cols columns) databaseTemplateData {
-	return databaseTemplateData{Name: name, NameSentenceCase: toSentenceCase(name), Columns: cols}
+func newDatabaseTemplateData(name string, cols columns) (databaseTemplateData, error) {
+	colsUpperCase := make(columns, 0)
+
+	for name, colType := range cols {
+		formattedType := strings.ToUpper(colType)
+		if !isValidSqliteType(formattedType) {
+			return databaseTemplateData{}, fmt.Errorf("%v is not a valid sqlite type", colType)
+		}
+		colsUpperCase[name] = formattedType
+	}
+
+	return databaseTemplateData{
+		Name:                  name,
+		NameSentenceCase:      toSentenceCase(name),
+		Columns:               cols,
+		ColumnsUpperCaseTypes: colsUpperCase,
+	}, nil
 }
 
 func (s ComponentService) GenerateTable(name string, cols columns) error {
-	tableTemplateData := newDatabaseTemplateData(name, cols)
+	tableTemplateData, err := newDatabaseTemplateData(name, cols)
+	if err != nil {
+		return err
+	}
 
 	// Opening tempate file and writing the file
 	timestamp := time.Now().UTC().Format("20060102150405")
@@ -187,7 +207,10 @@ func (s ComponentService) GenerateTable(name string, cols columns) error {
 }
 
 func (s ComponentService) GenerateQueries(name string, cols columns) error {
-	tableTemplateData := newDatabaseTemplateData(name, cols)
+	tableTemplateData, err := newDatabaseTemplateData(name, cols)
+	if err != nil {
+		return err
+	}
 
 	// Opening tempate file and writing the file
 	filename := fmt.Sprintf("%v.sql", name)
@@ -230,4 +253,38 @@ func toSentenceCase(s string) string {
 	rest := strings.ToLower(s[1:])
 
 	return fmt.Sprintf("%v%v", firstLetter, rest)
+}
+
+// Array of all possible Sqlite Types, fetched from https://www.sqlite.org/datatype3.html
+var sqliteTypes = []string{
+	"INT",
+	"INTEGER",
+	"TINYINT",
+	"SMALLINT",
+	"MEDIUMINT",
+	"BIGINT",
+	"UNSIGNED BIG INT",
+	"INT2",
+	"INT8",
+	"CHARACTER(20)",
+	"VARCHAR(255)",
+	"VARYING CHARACTER(255)",
+	"NCHAR(55)",
+	"NATIVE CHARACTER(70)",
+	"NVARCHAR(100)",
+	"TEXT",
+	"CLOB",
+	"BLOB",
+	"REAL",
+	"DOUBLE",
+	"DOUBLE PRECISION",
+	"FLOAT",
+	"NUMERIC",
+	"BOOLEAN",
+	"DATE",
+	"DATETIME",
+}
+
+func isValidSqliteType(t string) bool {
+	return slices.Contains(sqliteTypes, t)
 }
