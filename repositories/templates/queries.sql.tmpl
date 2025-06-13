@@ -8,7 +8,7 @@ SELECT * FROM {{ .Name }};
 -- name: Insert{{ .NameSentenceCase }} :one
 INSERT INTO {{ .Name }}
 (id, {{ range $name, $type := .Columns }}{{$name}}, {{ end }}updated_at, created_at)
-VALUES (NULL, {{ range $name, $type := .Columns }}{{$name}}, {{ end }}?, ?)
+VALUES (NULL, {{ range $name, $type := .Columns }}?, {{ end }}?, ?)
 RETURNING *;
 
 -- name: Update{{ .NameSentenceCase }}ById :one
