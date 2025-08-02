@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
-	"slices"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -257,34 +257,41 @@ func toSentenceCase(s string) string {
 
 // Array of all possible Sqlite Types, fetched from https://www.sqlite.org/datatype3.html
 var sqliteTypes = []string{
-	"INT",
-	"INTEGER",
-	"TINYINT",
-	"SMALLINT",
-	"MEDIUMINT",
-	"BIGINT",
-	"UNSIGNED BIG INT",
-	"INT2",
-	"INT8",
-	"CHARACTER(20)",
-	"VARCHAR(255)",
-	"VARYING CHARACTER(255)",
-	"NCHAR(55)",
-	"NATIVE CHARACTER(70)",
-	"NVARCHAR(100)",
-	"TEXT",
-	"CLOB",
-	"BLOB",
-	"REAL",
-	"DOUBLE",
-	"DOUBLE PRECISION",
-	"FLOAT",
-	"NUMERIC",
-	"BOOLEAN",
-	"DATE",
-	"DATETIME",
+	"^INT$",
+	"^INTEGER$",
+	"^TINYINT$",
+	"^SMALLINT$",
+	"^MEDIUMINT$",
+	"^BIGINT$",
+	"^UNSIGNED BIG INT$",
+	"^INT2$",
+	"^INT8$",
+	`^CHARACTER\([0-9]+\)$`,
+	`^VARCHAR\([0-9]+\)$`,
+	`^VARYING CHARACTER\([0-9]+\)$`,
+	`^NCHAR\([0-9]+\)$`,
+	`^NATIVE CHARACTER\([0-9]+\)$`,
+	`^NVARCHAR\([0-9]+\)$`,
+	"^TEXT$",
+	"^CLOB$",
+	"^BLOB$",
+	"^REAL$",
+	"^DOUBLE$",
+	"^DOUBLE PRECISION$",
+	"^FLOAT$",
+	`^DECIMAL\([0-9]+[ ]*,[ ]*[0-9]+\)$`,
+	"^NUMERIC$",
+	"^BOOLEAN$",
+	"^DATE$",
+	"^DATETIME$",
 }
 
 func isValidSqliteType(t string) bool {
-	return slices.Contains(sqliteTypes, t)
+	for _, typeRegex := range sqliteTypes {
+		match, _ := regexp.MatchString(typeRegex, t)
+		if match {
+			return true
+		}
+	}
+	return false
 }
